@@ -1,0 +1,400 @@
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-6px); }
+  75%       { transform: translateX(6px); }
+}
+
+@keyframes spinnerRotate {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes checkDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* ─── Page ──────────────────────────────────────────────────────── */
+
+.page {
+  min-height: 100vh;
+  background: #0A0F2C;
+  padding: 4rem 2rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* ─── Form card ─────────────────────────────────────────────────── */
+
+.formCard {
+  width: 100%;
+  max-width: 700px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.5rem;
+  padding: 3rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* ─── Heading ───────────────────────────────────────────────────── */
+
+.heading {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 2.5rem;
+  overflow: hidden;
+}
+
+.headingWord {
+  display: inline-block;
+  will-change: clip-path;
+}
+
+/* ─── Progress indicator ────────────────────────────────────────── */
+
+.progressSteps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 2.5rem;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 0.7rem;
+  color: var(--color-muted);
+  transition: color 0.3s ease;
+}
+
+.step.active {
+  color: #3B82F6;
+}
+
+.stepDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  transition: background 0.3s ease;
+}
+
+.step.active .stepDot {
+  background: #3B82F6;
+}
+
+.stepConnector {
+  flex: 1;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  max-width: 80px;
+  margin-bottom: 14px;
+  transition: background 0.3s ease;
+}
+
+.stepConnector.filled {
+  background: #3B82F6;
+}
+
+/* ─── Section headings ──────────────────────────────────────────── */
+
+.sectionGroup {
+  margin-bottom: 2rem;
+}
+
+.sectionHeading {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #3B82F6;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  margin-bottom: 1.5rem;
+}
+
+/* ─── Input wrapper (floating label) ───────────────────────────── */
+
+.fieldRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.fieldRow.single {
+  grid-template-columns: 1fr;
+}
+
+.inputWrapper {
+  position: relative;
+}
+
+.input,
+.select {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  padding: 1.25rem 1rem 0.5rem;
+  color: #ffffff;
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  appearance: none;
+  will-change: border-color, box-shadow;
+}
+
+.select {
+  cursor: pointer;
+}
+
+.select option {
+  background: #0d1230;
+  color: #ffffff;
+}
+
+.input:focus,
+.select:focus {
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.input.error,
+.select.error {
+  border-color: #EF4444;
+  animation: shake 0.3s ease;
+}
+
+.floatingLabel {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-muted);
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 0.875rem;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  transform-origin: left center;
+}
+
+.input:focus + .floatingLabel,
+.input:not(:placeholder-shown) + .floatingLabel,
+.select:focus + .floatingLabel,
+.select:not([value=""]) + .floatingLabel {
+  top: 0.625rem;
+  transform: translateY(0) scale(0.82);
+  color: #3B82F6;
+}
+
+.errorMsg {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 0.75rem;
+  color: #EF4444;
+  margin-top: 0.25rem;
+  padding-left: 0.25rem;
+}
+
+/* ─── Radio program cards ───────────────────────────────────────── */
+
+.programGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.programCard {
+  position: relative;
+  padding: 0.875rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.25s ease, background 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.programCard:hover {
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.programCard.selected {
+  border-color: #3B82F6;
+  background: rgba(59, 130, 246, 0.08);
+  box-shadow: 0 0 0 1px #3B82F6;
+}
+
+.programCard input {
+  display: none;
+}
+
+.radioCircle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.25s ease;
+}
+
+.programCard.selected .radioCircle {
+  border-color: #3B82F6;
+}
+
+.radioDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3B82F6;
+  transform: scale(0);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.programCard.selected .radioDot {
+  transform: scale(1);
+}
+
+.programLabel {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 0.85rem;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+/* ─── Payment pills ─────────────────────────────────────────────── */
+
+.paymentRow {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.paymentPill {
+  padding: 0.625rem 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.25s ease;
+}
+
+.paymentPill.selected {
+  border-color: #3B82F6;
+  color: #3B82F6;
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.secureNote {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  margin-bottom: 1.5rem;
+}
+
+/* ─── Fee row ───────────────────────────────────────────────────── */
+
+.feeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.feeLabel {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.feeAmount {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
+/* ─── Submit button ─────────────────────────────────────────────── */
+
+.submitBtn {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #3B82F6, #7C3AED);
+  color: #ffffff;
+  border: none;
+  border-radius: 0.75rem;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: opacity 0.2s ease;
+  will-change: transform, opacity;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 56px;
+}
+
+.submitBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.submitBtn.success {
+  background: #10B981;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spinnerRotate 0.7s linear infinite;
+}
+
+.checkSvg {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: checkDraw 0.4s ease forwards;
+}
+
+.encryptedNote {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  text-align: center;
+  margin-top: 0.75rem;
+}
+
+/* ─── Confetti canvas ───────────────────────────────────────────── */
+
+.confettiCanvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9997;
+}

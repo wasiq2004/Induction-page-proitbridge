@@ -1,0 +1,251 @@
+.page {
+  position: relative;
+  min-height: 100vh;
+  padding: 2rem 1rem 4rem;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(243, 201, 107, 0.12), transparent 20%),
+    radial-gradient(circle at 88% 18%, rgba(122, 107, 255, 0.14), transparent 24%),
+    linear-gradient(180deg, #060816 0%, #0a1024 100%);
+  overflow: hidden;
+}
+
+.ambientGlowLeft,
+.ambientGlowRight {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(12px);
+  pointer-events: none;
+}
+
+.ambientGlowLeft {
+  width: 28rem;
+  height: 28rem;
+  top: -8rem;
+  left: -8rem;
+  background: radial-gradient(circle, rgba(243, 201, 107, 0.16), transparent 70%);
+}
+
+.ambientGlowRight {
+  width: 24rem;
+  height: 24rem;
+  top: 10rem;
+  right: -8rem;
+  background: radial-gradient(circle, rgba(133, 184, 255, 0.18), transparent 68%);
+}
+
+.shell {
+  position: relative;
+  z-index: 1;
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(243, 201, 107, 0.28);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-gold-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hero {
+  max-width: 48rem;
+  margin: 0 auto 3rem;
+  text-align: center;
+}
+
+.kicker {
+  margin-bottom: 0.8rem;
+  color: var(--color-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: clamp(2.8rem, 7vw, 5.4rem);
+  line-height: 0.94;
+  margin-bottom: 1rem;
+}
+
+.description,
+.subDescription {
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.7;
+}
+
+.description {
+  font-size: 1.08rem;
+  margin-bottom: 0.7rem;
+}
+
+.subDescription {
+  font-size: 0.95rem;
+}
+
+.playerSection,
+.stepsSection,
+.ctaSection {
+  margin-bottom: 2rem;
+  padding: 1.6rem;
+  border-radius: 1.7rem;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-luxury);
+}
+
+.sectionHeader {
+  margin-bottom: 1.2rem;
+}
+
+.sectionHeader h2 {
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  margin-bottom: 0.4rem;
+}
+
+.sectionHeader p {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.2rem;
+}
+
+.stepCard {
+  padding: 1.35rem;
+  border-radius: 1.25rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stepNumber {
+  display: inline-block;
+  margin-bottom: 0.7rem;
+  color: var(--color-gold-soft);
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+.stepCard h3 {
+  margin-bottom: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+}
+
+.stepCard p {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.trustSection {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.trustBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.8rem 1.15rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.ctaSection {
+  text-align: center;
+}
+
+.ctaEyebrow {
+  margin-bottom: 0.65rem;
+  color: var(--color-gold-soft);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.ctaSection h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 0.7rem;
+}
+
+.ctaSection p {
+  max-width: 40rem;
+  margin: 0 auto;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.7;
+}
+
+.buttonWrap {
+  display: inline-flex;
+  margin-top: 1.5rem;
+}
+
+.ctaButton {
+  padding: 1rem 1.8rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(243, 201, 107, 0.96), rgba(255, 232, 178, 0.96));
+  color: #111527;
+  font-size: 1rem;
+  font-weight: 800;
+  box-shadow: 0 18px 44px rgba(243, 201, 107, 0.24);
+}
+
+.support {
+  padding-top: 1.4rem;
+  text-align: center;
+}
+
+.support p {
+  margin-bottom: 0.55rem;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.support a {
+  color: var(--color-primary);
+  border-bottom: 1px solid rgba(133, 184, 255, 0.45);
+}
+
+@media (max-width: 760px) {
+  .page {
+    padding-top: 1.25rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 2.2rem;
+  }
+
+  .playerSection,
+  .stepsSection,
+  .ctaSection {
+    padding: 1.15rem;
+    border-radius: 1.25rem;
+  }
+}

@@ -1,0 +1,107 @@
+.footer {
+  position: relative;
+  padding: 4rem 2rem 2rem;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(243, 201, 107, 0.1), transparent 24%),
+    #050812;
+}
+
+.shell {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border-radius: 1.6rem;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+}
+
+.brandWrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.4rem;
+}
+
+.ctaHeading {
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  color: #ffffff;
+  margin-bottom: 1.2rem;
+}
+
+.ctaPrice {
+  color: var(--color-gold-soft);
+}
+
+.ctaButton {
+  display: inline-block;
+  background: linear-gradient(135deg, rgba(243, 201, 107, 0.95), rgba(255, 232, 178, 0.95));
+  color: #111527;
+  padding: 0.95rem 2.4rem;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 800;
+  margin-bottom: 2.3rem;
+  box-shadow: 0 18px 40px rgba(243, 201, 107, 0.22);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ctaButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 24px 42px rgba(243, 201, 107, 0.28);
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.15rem;
+  margin-bottom: 1.3rem;
+}
+
+.link {
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.88rem;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: #ffffff;
+}
+
+.divider {
+  width: 1px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.email {
+  color: var(--color-primary);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.copyright {
+  color: rgba(255, 255, 255, 0.44);
+  font-size: 0.76rem;
+}
+
+@media (max-width: 640px) {
+  .footer {
+    padding: 3rem 1rem 1.5rem;
+  }
+
+  .shell {
+    padding: 1.5rem 1rem;
+    border-radius: 1.25rem;
+  }
+
+  .ctaButton {
+    width: 100%;
+  }
+
+  .links {
+    gap: 0.8rem;
+  }
+}

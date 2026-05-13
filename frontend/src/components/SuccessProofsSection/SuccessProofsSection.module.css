@@ -1,0 +1,223 @@
+.section {
+  position: relative;
+  padding: 6rem 2rem;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(243, 201, 107, 0.08), transparent 24%),
+    linear-gradient(180deg, #080d20 0%, #070b1b 100%);
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+.heading {
+  font-size: clamp(2.3rem, 4.8vw, 4rem);
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+/* 6-column grid for 3+2 centered layout */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1.6rem;
+  align-items: start;
+}
+
+.grid > .card:nth-child(1),
+.grid > .card:nth-child(2),
+.grid > .card:nth-child(3) {
+  grid-column: span 2;
+}
+
+.grid > .card:nth-child(4) {
+  grid-column: 2 / span 2;
+}
+
+.grid > .card:nth-child(5) {
+  grid-column: 4 / span 2;
+}
+
+/* Card — same structure as StoryCard */
+.card {
+  --card-rotate-x: 0deg;
+  --card-rotate-y: 0deg;
+  position: relative;
+  width: 100%;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(13, 18, 48, 0.95), rgba(8, 12, 28, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.24);
+  will-change: transform, opacity;
+  transform:
+    perspective(1000px)
+    rotateX(var(--card-rotate-x))
+    rotateY(var(--card-rotate-y));
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+}
+
+.cardGlow {
+  position: absolute;
+  inset: -20% -10% auto;
+  height: 14rem;
+  background: radial-gradient(circle, rgba(243, 201, 107, 0.14), transparent 68%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Image panel — matches videoWrapper aspect ratio */
+.imageWrapper {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #0d1230;
+}
+
+.cardImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  filter: brightness(1.06) contrast(1.03);
+}
+
+.imageOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.08) 0%,
+    rgba(0, 0, 0, 0) 40%,
+    rgba(8, 12, 28, 0.72) 100%
+  );
+}
+
+/* Top-left card index badge */
+.indexBadge {
+  position: absolute;
+  top: 0.85rem;
+  left: 0.9rem;
+  z-index: 3;
+  color: var(--color-gold-soft);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  background: rgba(8, 12, 28, 0.6);
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(243, 201, 107, 0.2);
+  backdrop-filter: blur(8px);
+}
+
+/* Bottom-right LPA badge */
+.lpaBadge {
+  position: absolute;
+  bottom: 0.85rem;
+  right: 0.9rem;
+  z-index: 3;
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  background: rgba(8, 12, 28, 0.72);
+  border: 1px solid rgba(243, 201, 107, 0.3);
+  border-radius: 0.75rem;
+  padding: 0.4rem 0.75rem;
+  backdrop-filter: blur(10px);
+}
+
+.lpaNumber {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-gold-soft);
+  line-height: 1;
+}
+
+.lpaUnit {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-gold-soft);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  align-self: center;
+}
+
+.trophyIcon {
+  width: 1.4rem;
+  height: 1.4rem;
+  fill: var(--color-gold-soft);
+}
+
+/* Info section below the image */
+.info {
+  padding: 1.15rem 1.3rem 1.4rem;
+}
+
+.metaRow {
+  margin-bottom: 0.45rem;
+}
+
+.cardCompany {
+  font-size: 0.72rem;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+}
+
+.cardTitle {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.35rem;
+}
+
+.cardResult {
+  font-size: 0.84rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid > .card:nth-child(1),
+  .grid > .card:nth-child(2),
+  .grid > .card:nth-child(3),
+  .grid > .card:nth-child(4),
+  .grid > .card:nth-child(5) {
+    grid-column: span 1;
+  }
+
+  .card {
+    transform: none;
+  }
+}
+
+@media (max-width: 580px) {
+  .section {
+    padding: 5rem 1rem;
+  }
+
+  .heading {
+    font-size: clamp(2rem, 10vw, 3rem);
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

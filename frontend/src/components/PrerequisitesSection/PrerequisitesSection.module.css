@@ -1,0 +1,435 @@
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes cursorFade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes frameGlow {
+  0%, 100% {
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+  }
+  50% {
+    box-shadow: 0 24px 88px rgba(122, 107, 255, 0.12);
+  }
+}
+
+@keyframes iconFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.section {
+  position: relative;
+  padding: 3.5rem 2rem 3rem;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(122, 107, 255, 0.08), transparent 24%),
+    linear-gradient(180deg, #0d1230 0%, #0a1028 100%);
+}
+
+.section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent),
+    linear-gradient(180deg, rgba(243, 201, 107, 0.06), transparent 26%);
+  opacity: 0.6;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+.headingBlock {
+  max-width: 44rem;
+  margin: 0 auto 1.25rem;
+  text-align: center;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin-bottom: 0.8rem;
+  color: var(--color-gold-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.heading {
+  font-size: clamp(2.6rem, 5vw, 4.3rem);
+  color: #ffffff;
+  margin-bottom: 0.9rem;
+  overflow: hidden;
+  will-change: clip-path;
+}
+
+.intro {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 1rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.3rem;
+  padding: 1.35rem;
+  display: flex;
+  gap: 1rem;
+  opacity: 0;
+  backdrop-filter: blur(16px);
+  will-change: transform, opacity;
+  transition: transform 0.28s ease, border-color 0.28s ease, background 0.28s ease;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), transparent 55%);
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(243, 201, 107, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.iconBox {
+  position: relative;
+  flex-shrink: 0;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(133, 184, 255, 0.16), rgba(122, 107, 255, 0.18));
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: inset 0 0 24px rgba(255, 255, 255, 0.05);
+  animation: iconFloat 4.2s ease-in-out infinite;
+}
+
+.iconBox::after {
+  content: '';
+  position: absolute;
+  inset: -0.3rem;
+  border-radius: 1.2rem;
+  border: 1px solid rgba(243, 201, 107, 0.16);
+}
+
+.icon {
+  width: 1.6rem;
+  height: 1.6rem;
+  stroke: var(--color-gold-soft);
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: visible;
+}
+
+.cardTitle {
+  font-family: var(--font-mono);
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.25rem;
+}
+
+.cardSubtitle {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.68);
+  line-height: 1.6;
+}
+
+.showcase {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.75rem;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.showcaseLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.showcaseKicker {
+  display: inline-block;
+  margin-bottom: 0.65rem;
+  color: var(--color-primary);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.showcaseHeading {
+  font-size: clamp(1.6rem, 2.8vw, 2.4rem);
+  line-height: 1.08;
+  margin-bottom: 0.75rem;
+}
+
+.showcaseText {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+}
+
+.showcasePoints {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.point {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.75rem 0.9rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.point strong {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.15rem;
+}
+
+.point p {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.pointIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: rgba(243, 201, 107, 0.12);
+  color: var(--color-gold-soft);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  flex-shrink: 0;
+}
+
+.showcaseRight {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inlineVideoWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background: #070c1b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+}
+
+.inlineVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.inlineFallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1.5rem;
+  text-align: center;
+  background: rgba(7, 12, 27, 0.9);
+}
+
+.inlineFallback p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.inlineFallback code {
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.fallbackBadge {
+  display: inline-flex;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.motivationWrapper {
+  text-align: center;
+  margin-bottom: 1rem;
+  min-height: 2.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+}
+
+.motivationText {
+  font-size: clamp(1.1rem, 2.1vw, 1.6rem);
+  font-weight: 700;
+  color: var(--color-gold-soft);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.2em;
+  background: var(--color-gold-soft);
+  animation: blink 0.8s step-end infinite;
+  vertical-align: text-bottom;
+}
+
+.cursorHide {
+  animation: cursorFade 0.5s forwards;
+}
+
+.ctaWrapper {
+  text-align: center;
+}
+
+.ctaOriginal {
+  text-decoration: line-through;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.95rem;
+  margin-bottom: 0.55rem;
+}
+
+.ctaButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: min(100%, 19rem);
+  padding: 1rem 1.5rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(243, 201, 107, 0.95), rgba(255, 232, 178, 0.95));
+  color: #111527;
+  font-size: 1rem;
+  font-weight: 800;
+  box-shadow: 0 18px 42px rgba(243, 201, 107, 0.22);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ctaButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 24px 48px rgba(243, 201, 107, 0.3);
+}
+
+@media (max-width: 1040px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .showcase {
+    grid-template-columns: 1fr;
+  }
+
+  .showcaseRight {
+    order: -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .section {
+    padding: 4rem 1rem;
+  }
+
+  .heading {
+    font-size: clamp(2.2rem, 11vw, 3.4rem);
+  }
+
+  .intro {
+    font-size: 0.94rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: 1.15rem;
+  }
+
+  .showcaseHeading {
+    font-size: clamp(1.5rem, 8vw, 2rem);
+  }
+
+  .motivationWrapper {
+    min-height: 3.2rem;
+    padding-inline: 0.5rem;
+  }
+
+  .motivationText {
+    font-size: 1rem;
+    white-space: normal;
+  }
+
+  .ctaButton {
+    width: 100%;
+  }
+}

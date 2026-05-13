@@ -1,0 +1,40 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #0A0F2C;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+}
+
+.brandSvg {
+  width: 100%;
+  max-width: 900px;
+  height: auto;
+  overflow: visible;
+}
+
+.brandText {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  fill: none;
+  stroke: #3B82F6;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 20px #3B82F6);
+}
+
+.tagline {
+  font-family: 'Manrope', system-ui, sans-serif;
+  color: #7C3AED;
+  opacity: 0;
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-top: 1rem;
+}
