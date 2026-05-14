@@ -3,9 +3,9 @@
   min-height: 100vh;
   padding: 2rem 1rem 4rem;
   background:
-    radial-gradient(circle at 14% 10%, rgba(133, 184, 255, 0.14), transparent 22%),
-    radial-gradient(circle at 86% 14%, rgba(243, 201, 107, 0.12), transparent 22%),
-    linear-gradient(180deg, #060816 0%, #091129 100%);
+    radial-gradient(circle at 14% 10%, rgba(111, 211, 242, 0.14), transparent 22%),
+    radial-gradient(circle at 86% 14%, rgba(43, 200, 245, 0.12), transparent 22%),
+    linear-gradient(180deg, #03101F 0%, #0A2342 100%);
   overflow: hidden;
 }
 
@@ -22,7 +22,7 @@
   height: 28rem;
   top: -8rem;
   left: -8rem;
-  background: radial-gradient(circle, rgba(133, 184, 255, 0.16), transparent 70%);
+  background: radial-gradient(circle, rgba(111, 211, 242, 0.16), transparent 70%);
 }
 
 .ambientGlowRight {
@@ -30,7 +30,7 @@
   height: 24rem;
   top: 18rem;
   right: -6rem;
-  background: radial-gradient(circle, rgba(243, 201, 107, 0.16), transparent 68%);
+  background: radial-gradient(circle, rgba(43, 200, 245, 0.16), transparent 68%);
 }
 
 .shell {
@@ -53,7 +53,7 @@
   align-items: center;
   padding: 0.55rem 1rem;
   border-radius: 999px;
-  border: 1px solid rgba(243, 201, 107, 0.28);
+  border: 1px solid rgba(43, 200, 245, 0.28);
   background: rgba(255, 255, 255, 0.04);
   color: var(--color-gold-soft);
   font-size: 0.78rem;
@@ -142,7 +142,7 @@
   height: 3.2rem;
   margin-bottom: 0.9rem;
   border-radius: 1rem;
-  background: rgba(243, 201, 107, 0.12);
+  background: rgba(43, 200, 245, 0.12);
   color: var(--color-gold-soft);
 }
 
@@ -208,7 +208,7 @@
 
 .support a {
   color: var(--color-primary);
-  border-bottom: 1px solid rgba(133, 184, 255, 0.45);
+  border-bottom: 1px solid rgba(111, 211, 242, 0.45);
 }
 
 @media (max-width: 760px) {

@@ -64,7 +64,7 @@
   position: absolute;
   inset: -20% -10% auto;
   height: 14rem;
-  background: radial-gradient(circle, rgba(243, 201, 107, 0.14), transparent 68%);
+  background: radial-gradient(circle, rgba(43, 200, 245, 0.14), transparent 68%);
   pointer-events: none;
   z-index: 1;
 }
@@ -113,7 +113,7 @@
   background: rgba(8, 12, 28, 0.6);
   padding: 0.25rem 0.6rem;
   border-radius: 999px;
-  border: 1px solid rgba(243, 201, 107, 0.2);
+  border: 1px solid rgba(43, 200, 245, 0.2);
   backdrop-filter: blur(8px);
 }
 
@@ -127,7 +127,7 @@
   align-items: baseline;
   gap: 0.3rem;
   background: rgba(8, 12, 28, 0.72);
-  border: 1px solid rgba(243, 201, 107, 0.3);
+  border: 1px solid rgba(43, 200, 245, 0.3);
   border-radius: 0.75rem;
   padding: 0.4rem 0.75rem;
   backdrop-filter: blur(10px);

@@ -1,17 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
 
 :root {
-  --color-bg: #060816;
-  --color-bg-soft: #0b1024;
-  --color-panel: rgba(10, 16, 35, 0.76);
-  --color-primary: #85b8ff;
-  --color-accent: #7a6bff;
-  --color-gold: #f3c96b;
-  --color-gold-soft: #ffe4a3;
+  /* Brand palette derived from the ProITBridge logo: deep navy + electric cyan */
+  --color-bg: #03101F;
+  --color-bg-soft: #082341;
+  --color-panel: rgba(8, 24, 46, 0.78);
+  --color-primary: #6FD3F2;       /* light cyan */
+  --color-primary-strong: #2BC8F5; /* electric cyan */
+  --color-accent: #2E7DE8;        /* brand blue */
+  --color-deep: #0B2849;          /* logo deep navy */
+  --color-gold: #2BC8F5;          /* legacy alias → electric cyan */
+  --color-gold-soft: #B8EAF7;     /* legacy alias → frost cyan */
   --color-white: #ffffff;
-  --color-muted: #95a1c3;
-  --color-line: rgba(255, 255, 255, 0.1);
-  --shadow-luxury: 0 32px 80px rgba(0, 0, 0, 0.35);
+  --color-muted: #9DB4D4;
+  --color-line: rgba(140, 198, 232, 0.14);
+  --shadow-luxury: 0 32px 80px rgba(2, 12, 28, 0.55);
+  --shadow-cyan: 0 18px 60px rgba(43, 200, 245, 0.18);
 
   --font-sans: 'Manrope', system-ui, -apple-system, sans-serif;
   --font-display: 'Cormorant Garamond', Georgia, serif;
@@ -21,11 +25,11 @@
   --page-progress: 0;
 
   /* Section palettes */
-  --section-ambient-left: rgba(122, 107, 255, 0.14);
-  --section-ambient-right: rgba(243, 201, 107, 0.12);
-  --section-dark-1: #04050a; /* deep navy/near-black */
-  --section-dark-2: #0b0f1a; /* slightly warmer charcoal */
-  --section-divider-glow: rgba(133, 184, 255, 0.06);
+  --section-ambient-left: rgba(46, 125, 232, 0.16);
+  --section-ambient-right: rgba(43, 200, 245, 0.14);
+  --section-dark-1: #03101F; /* deep navy */
+  --section-dark-2: #061A30; /* navy-2 */
+  --section-divider-glow: rgba(111, 211, 242, 0.08);
 }
 
 *,
@@ -44,9 +48,10 @@ body {
 
 body {
   background:
-    radial-gradient(circle at top left, rgba(122, 107, 255, 0.18), transparent 28%),
-    radial-gradient(circle at 80% 15%, rgba(243, 201, 107, 0.16), transparent 24%),
-    linear-gradient(180deg, #060816 0%, #091129 40%, #050812 100%);
+    radial-gradient(circle at top left, rgba(46, 125, 232, 0.22), transparent 30%),
+    radial-gradient(circle at 80% 15%, rgba(43, 200, 245, 0.18), transparent 26%),
+    radial-gradient(circle at 20% 90%, rgba(11, 40, 73, 0.55), transparent 40%),
+    linear-gradient(180deg, #03101F 0%, #082341 45%, #03101F 100%);
   color: var(--color-white);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -88,8 +93,25 @@ video {
 }
 
 ::selection {
-  background: rgba(133, 184, 255, 0.28);
+  background: rgba(43, 200, 245, 0.35);
   color: #ffffff;
+}
+
+/* Brand-aligned scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #03101F;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #2E7DE8, #2BC8F5);
+  border-radius: 10px;
+  border: 2px solid #03101F;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #2BC8F5, #6FD3F2);
 }
 
 #root {
@@ -127,14 +149,14 @@ video {
 .ambientGlowLeft {
   top: -12rem;
   left: -10rem;
-  background: radial-gradient(circle, rgba(122, 107, 255, 0.24), transparent 70%);
+  background: radial-gradient(circle, rgba(46, 125, 232, 0.32), transparent 70%);
   transform: translate3d(calc(var(--page-scroll) * -0.03), 0, 0);
 }
 
 .ambientGlowRight {
   top: 22vh;
   right: -14rem;
-  background: radial-gradient(circle, rgba(243, 201, 107, 0.2), transparent 68%);
+  background: radial-gradient(circle, rgba(43, 200, 245, 0.28), transparent 68%);
   animation-duration: 19s;
   animation-direction: reverse;
   transform: translate3d(calc(var(--page-scroll) * 0.025), 0, 0);
@@ -144,9 +166,10 @@ video {
   width: 26rem;
   height: 120vh;
   top: -10vh;
-  background: linear-gradient(180deg, rgba(133, 184, 255, 0.16), transparent 68%);
+  background: linear-gradient(180deg, rgba(111, 211, 242, 0.22), transparent 68%);
   filter: blur(18px);
-  opacity: 0.45;
+  opacity: 0.5;
+  animation: beamPulse 7s ease-in-out infinite;
 }
 
 .ambientBeamOne {
@@ -157,18 +180,30 @@ video {
 .ambientBeamTwo {
   right: 10%;
   transform: rotate(-18deg) translateY(calc(var(--page-scroll) * -0.04));
-  background: linear-gradient(180deg, rgba(243, 201, 107, 0.1), transparent 72%);
+  background: linear-gradient(180deg, rgba(43, 200, 245, 0.18), transparent 72%);
+  animation-delay: 2.5s;
+}
+
+@keyframes beamPulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.65; }
 }
 
 .ambientGrid {
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(111, 211, 242, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(111, 211, 242, 0.06) 1px, transparent 1px);
   background-size: 4.5rem 4.5rem;
   mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.9), transparent 82%);
-  opacity: 0.28;
+  opacity: 0.35;
   transform: translateY(calc(var(--page-scroll) * -0.02));
+  animation: gridDrift 24s linear infinite;
+}
+
+@keyframes gridDrift {
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: 4.5rem 4.5rem, 4.5rem 4.5rem; }
 }
 
 @keyframes ambientFloat {
@@ -225,11 +260,11 @@ video {
    into the surrounding ambient sections — no hard color seams. */
 .dark-section {
   background: linear-gradient(180deg,
-      rgba(4, 5, 10, 0) 0%,
-      rgba(4, 5, 10, 0.55) 8%,
-      rgba(4, 5, 10, 0.7) 50%,
-      rgba(4, 5, 10, 0.55) 92%,
-      rgba(4, 5, 10, 0) 100%);
+      rgba(3, 16, 31, 0) 0%,
+      rgba(3, 16, 31, 0.6) 8%,
+      rgba(6, 26, 48, 0.78) 50%,
+      rgba(3, 16, 31, 0.6) 92%,
+      rgba(3, 16, 31, 0) 100%);
   color: var(--color-white);
 }
 

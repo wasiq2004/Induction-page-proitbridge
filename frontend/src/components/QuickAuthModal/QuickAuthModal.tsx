@@ -158,7 +158,7 @@ function QuickAuthModal({ isOpen, onClose }: QuickAuthModalProps) {
           position: 'relative',
           background:
             'linear-gradient(135deg, rgba(6, 8, 22, 0.95) 0%, rgba(11, 16, 36, 0.95) 100%)',
-          border: '1px solid rgba(133, 184, 255, 0.2)',
+          border: '1px solid rgba(111, 211, 242, 0.2)',
           borderRadius: '1.5rem',
           padding: '2.5rem',
           width: '90%',
@@ -240,7 +240,7 @@ const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '0.875rem 1rem',
   background: 'rgba(255, 255, 255, 0.05)',
-  border: '1px solid rgba(133, 184, 255, 0.3)',
+  border: '1px solid rgba(111, 211, 242, 0.3)',
   borderRadius: '0.75rem',
   color: '#fff',
   fontFamily: "'Manrope', system-ui, sans-serif",
@@ -252,8 +252,8 @@ const primaryBtn = (enabled: boolean): React.CSSProperties => ({
   width: '100%',
   padding: '1rem',
   background: enabled
-    ? 'linear-gradient(135deg, #85b8ff, #7a6bff)'
-    : 'rgba(133, 184, 255, 0.3)',
+    ? 'linear-gradient(135deg, #6FD3F2, #2E7DE8)'
+    : 'rgba(111, 211, 242, 0.3)',
   color: '#fff',
   border: 'none',
   borderRadius: '0.75rem',
@@ -266,7 +266,7 @@ const primaryBtn = (enabled: boolean): React.CSSProperties => ({
 const backBtnStyle: React.CSSProperties = {
   background: 'none',
   border: 'none',
-  color: '#85b8ff',
+  color: '#6FD3F2',
   cursor: 'pointer',
   fontSize: '0.9rem',
   fontFamily: "'Manrope', system-ui, sans-serif",
@@ -309,9 +309,9 @@ function SelectionStep({ onPay, onLogin }: { onPay: () => void; onLogin: () => v
         <button
           onClick={onLogin}
           style={{
-            background: 'rgba(133, 184, 255, 0.1)',
-            color: '#85b8ff',
-            border: '2px solid rgba(133, 184, 255, 0.3)',
+            background: 'rgba(111, 211, 242, 0.1)',
+            color: '#6FD3F2',
+            border: '2px solid rgba(111, 211, 242, 0.3)',
             padding: '1rem',
             borderRadius: '0.75rem',
             fontSize: '1rem',

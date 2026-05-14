@@ -4,9 +4,17 @@
   left: 0;
   height: 3px;
   z-index: 9998;
-  background: linear-gradient(90deg, #3B82F6, #7C3AED, #F59E0B);
+  background: linear-gradient(90deg, #0B2849, #2E7DE8, #2BC8F5, #6FD3F2);
+  background-size: 200% 100%;
   transform-origin: left;
   will-change: width;
   transition: width 0.1s linear;
   pointer-events: none;
+  box-shadow: 0 0 12px rgba(43, 200, 245, 0.55);
+  animation: progressShimmer 4s linear infinite;
+}
+
+@keyframes progressShimmer {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
 }

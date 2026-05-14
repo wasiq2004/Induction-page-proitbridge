@@ -16,9 +16,50 @@
 }
 
 .brandWrap {
-  display: flex;
+  position: relative;
+  display: inline-flex;
+  align-self: center;
   justify-content: center;
-  margin-bottom: 1.4rem;
+  align-items: center;
+  margin: 0 auto 1.6rem;
+  padding: 0.7rem 1.25rem;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(43, 200, 245, 0.55);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(231, 244, 252, 0.92) 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.55) inset,
+    0 18px 40px rgba(2, 12, 28, 0.45),
+    0 0 30px rgba(43, 200, 245, 0.35);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  animation: footerBrandGlow 4.5s ease-in-out infinite;
+}
+
+.brandWrap::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(120deg, rgba(43, 200, 245, 0.0), rgba(43, 200, 245, 0.75), rgba(46, 125, 232, 0.75), rgba(43, 200, 245, 0.0));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.85;
+  background-size: 250% 100%;
+  animation: footerBrandSweep 6s linear infinite;
+}
+
+@keyframes footerBrandGlow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55) inset, 0 18px 40px rgba(2, 12, 28, 0.45), 0 0 30px rgba(43, 200, 245, 0.30); }
+  50%      { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55) inset, 0 18px 44px rgba(2, 12, 28, 0.48), 0 0 44px rgba(43, 200, 245, 0.55); }
+}
+
+@keyframes footerBrandSweep {
+  0%   { background-position: 0% 0; }
+  100% { background-position: 250% 0; }
 }
 
 .ctaHeading {
@@ -33,20 +74,20 @@
 
 .ctaButton {
   display: inline-block;
-  background: linear-gradient(135deg, rgba(243, 201, 107, 0.95), rgba(255, 232, 178, 0.95));
+  background: linear-gradient(135deg, rgba(43, 200, 245, 0.95), rgba(46, 125, 232, 0.95));
   color: #111527;
   padding: 0.95rem 2.4rem;
   border-radius: 999px;
   font-size: 1rem;
   font-weight: 800;
   margin-bottom: 2.3rem;
-  box-shadow: 0 18px 40px rgba(243, 201, 107, 0.22);
+  box-shadow: 0 18px 40px rgba(43, 200, 245, 0.22);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .ctaButton:hover {
   transform: translateY(-3px);
-  box-shadow: 0 24px 42px rgba(243, 201, 107, 0.28);
+  box-shadow: 0 24px 42px rgba(43, 200, 245, 0.28);
 }
 
 .links {

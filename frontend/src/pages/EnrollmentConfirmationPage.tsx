@@ -95,7 +95,7 @@ function EnrollmentConfirmationPage() {
         minHeight: '100vh',
         padding: '3rem 1.5rem',
         background:
-          'radial-gradient(circle at 12% 8%, rgba(243, 201, 107, 0.12), transparent 22%), radial-gradient(circle at 88% 18%, rgba(122, 107, 255, 0.14), transparent 26%), linear-gradient(180deg, #060816 0%, #0a1024 100%)',
+          'radial-gradient(circle at 12% 8%, rgba(43, 200, 245, 0.12), transparent 22%), radial-gradient(circle at 88% 18%, rgba(46, 125, 232, 0.14), transparent 26%), linear-gradient(180deg, #03101F 0%, #082341 100%)',
         color: '#fff',
         fontFamily: "'Manrope', system-ui, sans-serif",
       }}
@@ -211,7 +211,7 @@ function EnrollmentConfirmationPage() {
             style={{
               background: 'none',
               border: 'none',
-              color: '#85b8ff',
+              color: '#6FD3F2',
               textDecoration: 'underline',
               cursor: 'pointer',
               padding: 0,

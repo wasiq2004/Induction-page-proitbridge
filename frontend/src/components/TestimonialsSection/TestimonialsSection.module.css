@@ -74,11 +74,11 @@
 .card:hover {
   transform: translateY(-8px);
   box-shadow: 0 20px 42px rgba(0, 0, 0, 0.24);
-  border-color: rgba(243, 201, 107, 0.16);
+  border-color: rgba(43, 200, 245, 0.16);
 }
 
 .blockquote {
-  border-left: 3px solid rgba(243, 201, 107, 0.8);
+  border-left: 3px solid rgba(43, 200, 245, 0.8);
   padding-left: 1rem;
   margin: 0;
 }

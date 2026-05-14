@@ -16,7 +16,7 @@
 
 .page {
   min-height: 100vh;
-  background: #0A0F2C;
+  background: #03101F;
   padding: 4rem 2rem;
   display: flex;
   align-items: flex-start;
@@ -75,7 +75,7 @@
 }
 
 .step.active {
-  color: #3B82F6;
+  color: #2E7DE8;
 }
 
 .stepDot {
@@ -87,7 +87,7 @@
 }
 
 .step.active .stepDot {
-  background: #3B82F6;
+  background: #2E7DE8;
 }
 
 .stepConnector {
@@ -100,7 +100,7 @@
 }
 
 .stepConnector.filled {
-  background: #3B82F6;
+  background: #2E7DE8;
 }
 
 /* ─── Section headings ──────────────────────────────────────────── */
@@ -115,7 +115,7 @@
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #3B82F6;
+  color: #2E7DE8;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid rgba(59, 130, 246, 0.2);
   margin-bottom: 1.5rem;
@@ -165,7 +165,7 @@
 
 .input:focus,
 .select:focus {
-  border-color: #3B82F6;
+  border-color: #2E7DE8;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
@@ -194,7 +194,7 @@
 .select:not([value=""]) + .floatingLabel {
   top: 0.625rem;
   transform: translateY(0) scale(0.82);
-  color: #3B82F6;
+  color: #2E7DE8;
 }
 
 .errorMsg {
@@ -231,9 +231,9 @@
 }
 
 .programCard.selected {
-  border-color: #3B82F6;
+  border-color: #2E7DE8;
   background: rgba(59, 130, 246, 0.08);
-  box-shadow: 0 0 0 1px #3B82F6;
+  box-shadow: 0 0 0 1px #2E7DE8;
 }
 
 .programCard input {
@@ -253,14 +253,14 @@
 }
 
 .programCard.selected .radioCircle {
-  border-color: #3B82F6;
+  border-color: #2E7DE8;
 }
 
 .radioDot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #3B82F6;
+  background: #2E7DE8;
   transform: scale(0);
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -296,8 +296,8 @@
 }
 
 .paymentPill.selected {
-  border-color: #3B82F6;
-  color: #3B82F6;
+  border-color: #2E7DE8;
+  color: #2E7DE8;
   background: rgba(59, 130, 246, 0.08);
 }
 
@@ -339,7 +339,7 @@
 .submitBtn {
   width: 100%;
   padding: 1rem;
-  background: linear-gradient(135deg, #3B82F6, #7C3AED);
+  background: linear-gradient(135deg, #2E7DE8, #2BC8F5);
   color: #ffffff;
   border: none;
   border-radius: 0.75rem;

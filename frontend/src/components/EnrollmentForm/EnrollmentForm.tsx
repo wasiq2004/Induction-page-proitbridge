@@ -64,7 +64,7 @@ const INITIAL: EnrollmentFormData = {
   paymentMethod: PaymentMethod.UPI,
 };
 
-const CONFETTI_COLORS = ['#3B82F6', '#7C3AED', '#F59E0B', '#10B981', '#EF4444'];
+const CONFETTI_COLORS = ['#2E7DE8', '#2BC8F5', '#6FD3F2', '#10B981', '#EF4444'];
 
 const validateField = (name: keyof EnrollmentFormData, value: string): string | null => {
   switch (name) {

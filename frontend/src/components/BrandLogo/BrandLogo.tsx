@@ -22,9 +22,9 @@ function BrandLogo({
         <svg viewBox="0 0 64 64" className={styles.markSvg}>
           <defs>
             <linearGradient id="brand-gradient" x1="0%" x2="100%" y1="0%" y2="100%">
-              <stop offset="0%" stopColor="#ffe4a3" />
-              <stop offset="45%" stopColor="#85b8ff" />
-              <stop offset="100%" stopColor="#7a6bff" />
+              <stop offset="0%" stopColor="#B8EAF7" />
+              <stop offset="45%" stopColor="#6FD3F2" />
+              <stop offset="100%" stopColor="#2E7DE8" />
             </linearGradient>
           </defs>
           <rect x="4" y="4" width="56" height="56" rx="18" fill="rgba(9,14,31,0.92)" />

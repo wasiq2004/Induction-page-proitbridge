@@ -15,9 +15,9 @@ interface Particle {
 }
 
 const PARTICLE_COLORS = [
-  'rgba(133, 184, 255, 0.35)',
-  'rgba(122, 107, 255, 0.28)',
-  'rgba(243, 201, 107, 0.22)',
+  'rgba(111, 211, 242, 0.35)',
+  'rgba(46, 125, 232, 0.28)',
+  'rgba(43, 200, 245, 0.22)',
 ];
 
 interface HeroSectionProps {

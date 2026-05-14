@@ -3,9 +3,9 @@
   min-height: 100vh;
   padding: 2rem 1rem 4rem;
   background:
-    radial-gradient(circle at 12% 8%, rgba(243, 201, 107, 0.12), transparent 20%),
-    radial-gradient(circle at 88% 18%, rgba(122, 107, 255, 0.14), transparent 24%),
-    linear-gradient(180deg, #060816 0%, #0a1024 100%);
+    radial-gradient(circle at 12% 8%, rgba(43, 200, 245, 0.12), transparent 20%),
+    radial-gradient(circle at 88% 18%, rgba(46, 125, 232, 0.14), transparent 24%),
+    linear-gradient(180deg, #03101F 0%, #082341 100%);
   overflow: hidden;
 }
 
@@ -22,7 +22,7 @@
   height: 28rem;
   top: -8rem;
   left: -8rem;
-  background: radial-gradient(circle, rgba(243, 201, 107, 0.16), transparent 70%);
+  background: radial-gradient(circle, rgba(43, 200, 245, 0.16), transparent 70%);
 }
 
 .ambientGlowRight {
@@ -30,7 +30,7 @@
   height: 24rem;
   top: 10rem;
   right: -8rem;
-  background: radial-gradient(circle, rgba(133, 184, 255, 0.18), transparent 68%);
+  background: radial-gradient(circle, rgba(111, 211, 242, 0.18), transparent 68%);
 }
 
 .shell {
@@ -53,7 +53,7 @@
   align-items: center;
   padding: 0.55rem 1rem;
   border-radius: 999px;
-  border: 1px solid rgba(243, 201, 107, 0.28);
+  border: 1px solid rgba(43, 200, 245, 0.28);
   background: rgba(255, 255, 255, 0.04);
   color: var(--color-gold-soft);
   font-size: 0.78rem;
@@ -209,11 +209,11 @@
 .ctaButton {
   padding: 1rem 1.8rem;
   border-radius: 999px;
-  background: linear-gradient(135deg, rgba(243, 201, 107, 0.96), rgba(255, 232, 178, 0.96));
+  background: linear-gradient(135deg, rgba(43, 200, 245, 0.96), rgba(46, 125, 232, 0.96));
   color: #111527;
   font-size: 1rem;
   font-weight: 800;
-  box-shadow: 0 18px 44px rgba(243, 201, 107, 0.24);
+  box-shadow: 0 18px 44px rgba(43, 200, 245, 0.24);
 }
 
 .support {
@@ -228,7 +228,7 @@
 
 .support a {
   color: var(--color-primary);
-  border-bottom: 1px solid rgba(133, 184, 255, 0.45);
+  border-bottom: 1px solid rgba(111, 211, 242, 0.45);
 }
 
 @media (max-width: 760px) {
