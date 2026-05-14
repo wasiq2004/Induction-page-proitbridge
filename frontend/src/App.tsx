@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import IntroOverlay from '@components/IntroOverlay';
 import ScrollProgressBar from '@components/ScrollProgressBar';
@@ -6,10 +6,16 @@ import QuickAuthModal from '@components/QuickAuthModal';
 import LandingPage from '@pages/LandingPage';
 import CongratulationsPage from '@pages/CongratulationsPage';
 import EnrollmentPage from '@pages/EnrollmentPage';
+import EnrollmentConfirmationPage from '@pages/EnrollmentConfirmationPage';
+import { initMetaPixel } from '@lib/metaPixel';
 
 function App() {
   const [introComplete, setIntroComplete] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+
+  useEffect(() => {
+    initMetaPixel();
+  }, []);
 
   return (
     <>
@@ -28,6 +34,7 @@ function App() {
           <Route path="/" element={<LandingPage onInductionClick={() => setAuthModalOpen(true)} />} />
           <Route path="/congratulations" element={<CongratulationsPage />} />
           <Route path="/enrollment" element={<EnrollmentPage />} />
+          <Route path="/enrollment-confirmation" element={<EnrollmentConfirmationPage />} />
         </Routes>
       </div>
     </>

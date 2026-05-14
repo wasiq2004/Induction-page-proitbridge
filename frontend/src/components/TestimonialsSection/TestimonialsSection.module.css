@@ -1,9 +1,7 @@
 .section {
   position: relative;
   padding: 6rem 2rem;
-  background:
-    radial-gradient(circle at 12% 18%, rgba(243, 201, 107, 0.08), transparent 22%),
-    linear-gradient(180deg, #0d1230 0%, #090d22 100%);
+  background: transparent;
 }
 
 .inner {

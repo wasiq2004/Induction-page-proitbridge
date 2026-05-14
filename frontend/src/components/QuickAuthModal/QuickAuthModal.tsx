@@ -1,32 +1,43 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
+import {
+  startInductionPayment,
+  CheckoutDismissedError,
+} from '@lib/razorpay';
+import { checkAccess, saveAuthSession } from '@lib/googleSheets';
+import { trackCustom } from '@lib/metaPixel';
 
 interface QuickAuthModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-type AuthStep = 'options' | 'newUser' | 'existingUser';
+type AuthStep = 'selection' | 'details' | 'login' | 'payment';
+
+const NAME_REGEX = /^.{2,}$/;
+const MOBILE_REGEX = /^[6-9]\d{9}$/;
 
 function QuickAuthModal({ isOpen, onClose }: QuickAuthModalProps) {
   const navigate = useNavigate();
-  const [step, setStep] = useState<AuthStep>('options');
+  const [step, setStep] = useState<AuthStep>('selection');
+  const [fullName, setFullName] = useState('');
   const [mobile, setMobile] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
-      setStep('options');
+      setStep('selection');
+      setFullName('');
       setMobile('');
+      setError(null);
+      setLoading(false);
+      trackCustom('InductionCTAClicked');
       const ctx = gsap.context(() => {
-        gsap.from(modalRef.current, {
-          opacity: 0,
-          duration: 0.3,
-          ease: 'power2.out',
-        });
+        gsap.from(modalRef.current, { opacity: 0, duration: 0.3, ease: 'power2.out' });
         gsap.from(contentRef.current, {
           scale: 0.9,
           opacity: 0,
@@ -40,6 +51,7 @@ function QuickAuthModal({ isOpen, onClose }: QuickAuthModalProps) {
   }, [isOpen]);
 
   const handleClose = () => {
+    if (loading) return;
     const ctx = gsap.context(() => {
       gsap.to([modalRef.current, contentRef.current], {
         opacity: 0,
@@ -52,24 +64,73 @@ function QuickAuthModal({ isOpen, onClose }: QuickAuthModalProps) {
     return () => ctx.revert();
   };
 
-  const validateMobile = () => {
-    return mobile.trim().length === 10 && /^\d{10}$/.test(mobile);
+  const validateDetails = (): string | null => {
+    if (!NAME_REGEX.test(fullName.trim())) return 'Please enter your full name';
+    if (!MOBILE_REGEX.test(mobile)) return 'Enter a valid 10-digit Indian mobile number';
+    return null;
   };
 
-  const handleMobileSubmit = async (userType: 'new' | 'existing') => {
-    if (!validateMobile()) {
-      alert('Please enter a valid 10-digit mobile number');
+  const validateLogin = (): string | null => {
+    if (!MOBILE_REGEX.test(mobile)) return 'Enter a valid 10-digit Indian mobile number';
+    return null;
+  };
+
+  const goToPayment = () => {
+    const err = validateDetails();
+    if (err) {
+      setError(err);
       return;
     }
+    setError(null);
+    setStep('payment');
+  };
 
+  const handleLogin = async () => {
+    const err = validateLogin();
+    if (err) {
+      setError(err);
+      return;
+    }
+    setError(null);
     setLoading(true);
-    // Simulated API call - validation done later
-    setTimeout(() => {
+    try {
+      const result = await checkAccess(mobile);
+      if (result.hasAccess) {
+        saveAuthSession(mobile, result.userName ?? 'Student');
+        onClose();
+        setTimeout(() => navigate('/congratulations'), 200);
+      } else {
+        setError('No successful payment found for this mobile number.');
+      }
+    } catch {
+      setError('Could not verify access. Please try again.');
+    } finally {
       setLoading(false);
-      handleClose();
-      // Redirect to congratulations page after modal closes
-      setTimeout(() => navigate('/congratulations'), 300);
-    }, 1000);
+    }
+  };
+
+  const handlePay = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const paymentId = await startInductionPayment(mobile, fullName.trim());
+      onClose();
+      setTimeout(
+        () =>
+          navigate('/congratulations', {
+            state: { paymentId, paymentVerified: true, userName: fullName.trim() },
+          }),
+        200,
+      );
+    } catch (err) {
+      if (err instanceof CheckoutDismissedError) {
+        setError('Payment cancelled. You can try again whenever you are ready.');
+      } else {
+        setError(err instanceof Error ? err.message : 'Payment failed. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -94,7 +155,9 @@ function QuickAuthModal({ isOpen, onClose }: QuickAuthModalProps) {
         ref={contentRef}
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: 'linear-gradient(135deg, rgba(6, 8, 22, 0.95) 0%, rgba(11, 16, 36, 0.95) 100%)',
+          position: 'relative',
+          background:
+            'linear-gradient(135deg, rgba(6, 8, 22, 0.95) 0%, rgba(11, 16, 36, 0.95) 100%)',
           border: '1px solid rgba(133, 184, 255, 0.2)',
           borderRadius: '1.5rem',
           padding: '2.5rem',
@@ -102,382 +165,291 @@ function QuickAuthModal({ isOpen, onClose }: QuickAuthModalProps) {
           maxWidth: '450px',
           backdropFilter: 'blur(20px)',
           boxShadow: '0 25px 50px rgba(0, 0, 0, 0.5)',
-          scale: 1,
-          opacity: 1,
         }}
       >
-        {/* Close button */}
         <button
           onClick={handleClose}
+          disabled={loading}
           style={{
             position: 'absolute',
-            top: '1.5rem',
-            right: '1.5rem',
+            top: '1rem',
+            right: '1rem',
             background: 'none',
             border: 'none',
             color: 'rgba(255, 255, 255, 0.5)',
             fontSize: '1.5rem',
-            cursor: 'pointer',
+            cursor: loading ? 'not-allowed' : 'pointer',
             padding: '0.5rem',
-            transition: 'color 0.2s ease',
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255, 255, 255, 0.9)')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255, 255, 255, 0.5)')}
+          aria-label="Close"
         >
           ✕
         </button>
 
-        {/* OPTIONS STEP */}
-        {step === 'options' && (
-          <div>
-            <h2
-              style={{
-                fontFamily: "'Cormorant Garamond', Georgia, serif",
-                fontSize: '1.75rem',
-                fontWeight: 600,
-                marginBottom: '0.5rem',
-                color: '#fff',
-                letterSpacing: '0.01em',
-              }}
-            >
-              Get Your Induction
-            </h2>
-            <p
-              style={{
-                fontFamily: "'Manrope', system-ui, sans-serif",
-                fontSize: '0.9rem',
-                color: 'rgba(255, 255, 255, 0.7)',
-                marginBottom: '2rem',
-                lineHeight: 1.5,
-              }}
-            >
-              Choose how you'd like to proceed with your AI transformation journey.
-            </p>
+        {step === 'selection' && <SelectionStep onPay={() => setStep('details')} onLogin={() => setStep('login')} />}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {/* New User Button */}
-              <button
-                onClick={() => setStep('newUser')}
-                style={{
-                  background: 'linear-gradient(135deg, #85b8ff, #7a6bff)',
-                  color: '#fff',
-                  border: 'none',
-                  padding: '1.25rem 1.5rem',
-                  borderRadius: '0.875rem',
-                  fontSize: '1rem',
-                  fontFamily: "'Cormorant Garamond', Georgia, serif",
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  textAlign: 'left',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.5rem',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
-                onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
-              >
-                <span style={{ fontWeight: 700, fontSize: '1.1rem' }}>New User</span>
-                <span
-                  style={{
-                    fontFamily: "'Manrope', system-ui, sans-serif",
-                    fontSize: '0.85rem',
-                    opacity: 0.9,
-                    fontWeight: 400,
-                  }}
-                >
-                  Get induction at ₹89
-                </span>
-              </button>
-
-              {/* Existing User Button */}
-              <button
-                onClick={() => setStep('existingUser')}
-                style={{
-                  background: 'rgba(133, 184, 255, 0.1)',
-                  color: '#85b8ff',
-                  border: '2px solid rgba(133, 184, 255, 0.3)',
-                  padding: '1.25rem 1.5rem',
-                  borderRadius: '0.875rem',
-                  fontSize: '1rem',
-                  fontFamily: "'Cormorant Garamond', Georgia, serif",
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  textAlign: 'left',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.5rem',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(133, 184, 255, 0.6)';
-                  e.currentTarget.style.background = 'rgba(133, 184, 255, 0.15)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(133, 184, 255, 0.3)';
-                  e.currentTarget.style.background = 'rgba(133, 184, 255, 0.1)';
-                }}
-              >
-                <span style={{ fontWeight: 700, fontSize: '1.1rem' }}>Already a User</span>
-                <span
-                  style={{
-                    fontFamily: "'Manrope', system-ui, sans-serif",
-                    fontSize: '0.85rem',
-                    opacity: 0.8,
-                    fontWeight: 400,
-                  }}
-                >
-                  Log in to your account
-                </span>
-              </button>
-            </div>
-          </div>
+        {step === 'details' && (
+          <DetailsStep
+            fullName={fullName}
+            mobile={mobile}
+            error={error}
+            onBack={() => setStep('selection')}
+            onChangeName={setFullName}
+            onChangeMobile={setMobile}
+            onContinue={goToPayment}
+          />
         )}
 
-        {/* NEW USER STEP */}
-        {step === 'newUser' && (
-          <div>
-            <button
-              onClick={() => setStep('options')}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#85b8ff',
-                cursor: 'pointer',
-                fontSize: '0.9rem',
-                fontFamily: "'Manrope', system-ui, sans-serif",
-                marginBottom: '1.5rem',
-                padding: 0,
-                textDecoration: 'none',
-                transition: 'opacity 0.2s ease',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.7')}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
-            >
-              ← Back
-            </button>
-
-            <h2
-              style={{
-                fontFamily: "'Cormorant Garamond', Georgia, serif",
-                fontSize: '1.5rem',
-                fontWeight: 600,
-                marginBottom: '0.5rem',
-                color: '#fff',
-                letterSpacing: '0.01em',
-              }}
-            >
-              Create New Account
-            </h2>
-            <p
-              style={{
-                fontFamily: "'Manrope', system-ui, sans-serif",
-                fontSize: '0.9rem',
-                color: 'rgba(255, 255, 255, 0.7)',
-                marginBottom: '2rem',
-              }}
-            >
-              Enter your mobile number to get started.
-            </p>
-
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label
-                style={{
-                  fontFamily: "'Manrope', system-ui, sans-serif",
-                  fontSize: '0.85rem',
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  display: 'block',
-                  marginBottom: '0.5rem',
-                }}
-              >
-                Mobile Number *
-              </label>
-              <input
-                type="tel"
-                maxLength={10}
-                placeholder="10-digit mobile number"
-                value={mobile}
-                onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
-                style={{
-                  width: '100%',
-                  padding: '0.875rem 1rem',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: `1px solid rgba(133, 184, 255, 0.3)`,
-                  borderRadius: '0.75rem',
-                  color: '#fff',
-                  fontFamily: "'Manrope', system-ui, sans-serif",
-                  fontSize: '1rem',
-                  outline: 'none',
-                  transition: 'border-color 0.2s ease',
-                }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = '#85b8ff')}
-                onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(133, 184, 255, 0.3)')}
-              />
-              <p
-                style={{
-                  fontFamily: "'Manrope', system-ui, sans-serif",
-                  fontSize: '0.75rem',
-                  color: 'rgba(255, 255, 255, 0.5)',
-                  marginTop: '0.5rem',
-                }}
-              >
-                {mobile.length}/10
-              </p>
-            </div>
-
-            <button
-              onClick={() => handleMobileSubmit('new')}
-              disabled={loading || !validateMobile()}
-              style={{
-                width: '100%',
-                padding: '1rem',
-                background: validateMobile() ? 'linear-gradient(135deg, #85b8ff, #7a6bff)' : 'rgba(133, 184, 255, 0.3)',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '0.75rem',
-                fontSize: '1rem',
-                fontFamily: "'Cormorant Garamond', Georgia, serif",
-                fontWeight: 600,
-                cursor: validateMobile() ? 'pointer' : 'not-allowed',
-                transition: 'all 0.3s ease',
-                opacity: loading ? 0.7 : 1,
-              }}
-              onMouseEnter={(e) => {
-                if (validateMobile()) {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              {loading ? 'Processing...' : 'Continue'}
-            </button>
-          </div>
+        {step === 'login' && (
+          <LoginStep
+            mobile={mobile}
+            error={error}
+            loading={loading}
+            onBack={() => setStep('selection')}
+            onChangeMobile={setMobile}
+            onSubmit={handleLogin}
+          />
         )}
 
-        {/* EXISTING USER STEP */}
-        {step === 'existingUser' && (
-          <div>
-            <button
-              onClick={() => setStep('options')}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#85b8ff',
-                cursor: 'pointer',
-                fontSize: '0.9rem',
-                fontFamily: "'Manrope', system-ui, sans-serif",
-                marginBottom: '1.5rem',
-                padding: 0,
-                textDecoration: 'none',
-                transition: 'opacity 0.2s ease',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.7')}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
-            >
-              ← Back
-            </button>
-
-            <h2
-              style={{
-                fontFamily: "'Cormorant Garamond', Georgia, serif",
-                fontSize: '1.5rem',
-                fontWeight: 600,
-                marginBottom: '0.5rem',
-                color: '#fff',
-                letterSpacing: '0.01em',
-              }}
-            >
-              Welcome Back
-            </h2>
-            <p
-              style={{
-                fontFamily: "'Manrope', system-ui, sans-serif",
-                fontSize: '0.9rem',
-                color: 'rgba(255, 255, 255, 0.7)',
-                marginBottom: '2rem',
-              }}
-            >
-              Enter your mobile number to log in.
-            </p>
-
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label
-                style={{
-                  fontFamily: "'Manrope', system-ui, sans-serif",
-                  fontSize: '0.85rem',
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  display: 'block',
-                  marginBottom: '0.5rem',
-                }}
-              >
-                Mobile Number *
-              </label>
-              <input
-                type="tel"
-                maxLength={10}
-                placeholder="10-digit mobile number"
-                value={mobile}
-                onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
-                style={{
-                  width: '100%',
-                  padding: '0.875rem 1rem',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: `1px solid rgba(133, 184, 255, 0.3)`,
-                  borderRadius: '0.75rem',
-                  color: '#fff',
-                  fontFamily: "'Manrope', system-ui, sans-serif",
-                  fontSize: '1rem',
-                  outline: 'none',
-                  transition: 'border-color 0.2s ease',
-                }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = '#85b8ff')}
-                onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(133, 184, 255, 0.3)')}
-              />
-              <p
-                style={{
-                  fontFamily: "'Manrope', system-ui, sans-serif",
-                  fontSize: '0.75rem',
-                  color: 'rgba(255, 255, 255, 0.5)',
-                  marginTop: '0.5rem',
-                }}
-              >
-                {mobile.length}/10
-              </p>
-            </div>
-
-            <button
-              onClick={() => handleMobileSubmit('existing')}
-              disabled={loading || !validateMobile()}
-              style={{
-                width: '100%',
-                padding: '1rem',
-                background: validateMobile() ? 'linear-gradient(135deg, #85b8ff, #7a6bff)' : 'rgba(133, 184, 255, 0.3)',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '0.75rem',
-                fontSize: '1rem',
-                fontFamily: "'Cormorant Garamond', Georgia, serif",
-                fontWeight: 600,
-                cursor: validateMobile() ? 'pointer' : 'not-allowed',
-                transition: 'all 0.3s ease',
-                opacity: loading ? 0.7 : 1,
-              }}
-              onMouseEnter={(e) => {
-                if (validateMobile()) {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              {loading ? 'Processing...' : 'Login'}
-            </button>
-          </div>
+        {step === 'payment' && (
+          <PaymentStep
+            fullName={fullName}
+            mobile={mobile}
+            error={error}
+            loading={loading}
+            onBack={() => setStep('details')}
+            onPay={handlePay}
+          />
         )}
       </div>
+    </div>
+  );
+}
+
+// --- Step components -------------------------------------------------------
+
+const labelStyle: React.CSSProperties = {
+  fontFamily: "'Manrope', system-ui, sans-serif",
+  fontSize: '0.85rem',
+  color: 'rgba(255, 255, 255, 0.7)',
+  display: 'block',
+  marginBottom: '0.5rem',
+};
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '0.875rem 1rem',
+  background: 'rgba(255, 255, 255, 0.05)',
+  border: '1px solid rgba(133, 184, 255, 0.3)',
+  borderRadius: '0.75rem',
+  color: '#fff',
+  fontFamily: "'Manrope', system-ui, sans-serif",
+  fontSize: '1rem',
+  outline: 'none',
+};
+
+const primaryBtn = (enabled: boolean): React.CSSProperties => ({
+  width: '100%',
+  padding: '1rem',
+  background: enabled
+    ? 'linear-gradient(135deg, #85b8ff, #7a6bff)'
+    : 'rgba(133, 184, 255, 0.3)',
+  color: '#fff',
+  border: 'none',
+  borderRadius: '0.75rem',
+  fontSize: '1rem',
+  fontFamily: "'Cormorant Garamond', Georgia, serif",
+  fontWeight: 600,
+  cursor: enabled ? 'pointer' : 'not-allowed',
+});
+
+const backBtnStyle: React.CSSProperties = {
+  background: 'none',
+  border: 'none',
+  color: '#85b8ff',
+  cursor: 'pointer',
+  fontSize: '0.9rem',
+  fontFamily: "'Manrope', system-ui, sans-serif",
+  marginBottom: '1.5rem',
+  padding: 0,
+};
+
+const headingStyle: React.CSSProperties = {
+  fontFamily: "'Cormorant Garamond', Georgia, serif",
+  fontSize: '1.5rem',
+  fontWeight: 600,
+  marginBottom: '0.5rem',
+  color: '#fff',
+};
+
+const subTextStyle: React.CSSProperties = {
+  fontFamily: "'Manrope', system-ui, sans-serif",
+  fontSize: '0.9rem',
+  color: 'rgba(255, 255, 255, 0.7)',
+  marginBottom: '2rem',
+  lineHeight: 1.5,
+};
+
+const errorStyle: React.CSSProperties = {
+  fontFamily: "'Manrope', system-ui, sans-serif",
+  fontSize: '0.85rem',
+  color: '#ff8a8a',
+  marginTop: '0.75rem',
+};
+
+function SelectionStep({ onPay, onLogin }: { onPay: () => void; onLogin: () => void }) {
+  return (
+    <div>
+      <h2 style={{ ...headingStyle, fontSize: '1.75rem' }}>Get Your Induction</h2>
+      <p style={subTextStyle}>Choose how you'd like to proceed with your AI transformation journey.</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <button onClick={onPay} style={primaryBtn(true)}>
+          New User — Pay Rs. 89
+        </button>
+        <button
+          onClick={onLogin}
+          style={{
+            background: 'rgba(133, 184, 255, 0.1)',
+            color: '#85b8ff',
+            border: '2px solid rgba(133, 184, 255, 0.3)',
+            padding: '1rem',
+            borderRadius: '0.75rem',
+            fontSize: '1rem',
+            fontFamily: "'Cormorant Garamond', Georgia, serif",
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
+        >
+          Already Paid? Login
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function DetailsStep(props: {
+  fullName: string;
+  mobile: string;
+  error: string | null;
+  onBack: () => void;
+  onChangeName: (v: string) => void;
+  onChangeMobile: (v: string) => void;
+  onContinue: () => void;
+}) {
+  const enabled = props.fullName.trim().length >= 2 && /^[6-9]\d{9}$/.test(props.mobile);
+  return (
+    <div>
+      <button onClick={props.onBack} style={backBtnStyle}>← Back</button>
+      <h2 style={headingStyle}>Your Details</h2>
+      <p style={subTextStyle}>We'll prefill your Razorpay checkout with this.</p>
+
+      <div style={{ marginBottom: '1.25rem' }}>
+        <label style={labelStyle}>Full Name *</label>
+        <input
+          type="text"
+          placeholder="e.g. Priya Sharma"
+          value={props.fullName}
+          onChange={(e) => props.onChangeName(e.target.value)}
+          style={inputStyle}
+        />
+      </div>
+
+      <div style={{ marginBottom: '1.25rem' }}>
+        <label style={labelStyle}>Mobile Number *</label>
+        <input
+          type="tel"
+          maxLength={10}
+          placeholder="10-digit mobile number"
+          value={props.mobile}
+          onChange={(e) => props.onChangeMobile(e.target.value.replace(/\D/g, ''))}
+          style={inputStyle}
+        />
+      </div>
+
+      {props.error && <p style={errorStyle}>{props.error}</p>}
+
+      <button onClick={props.onContinue} disabled={!enabled} style={{ ...primaryBtn(enabled), marginTop: '1rem' }}>
+        Continue to Payment
+      </button>
+    </div>
+  );
+}
+
+function LoginStep(props: {
+  mobile: string;
+  error: string | null;
+  loading: boolean;
+  onBack: () => void;
+  onChangeMobile: (v: string) => void;
+  onSubmit: () => void;
+}) {
+  const enabled = /^[6-9]\d{9}$/.test(props.mobile) && !props.loading;
+  return (
+    <div>
+      <button onClick={props.onBack} style={backBtnStyle}>← Back</button>
+      <h2 style={headingStyle}>Welcome Back</h2>
+      <p style={subTextStyle}>Enter the mobile number you paid with.</p>
+
+      <div style={{ marginBottom: '1.25rem' }}>
+        <label style={labelStyle}>Mobile Number *</label>
+        <input
+          type="tel"
+          maxLength={10}
+          placeholder="10-digit mobile number"
+          value={props.mobile}
+          onChange={(e) => props.onChangeMobile(e.target.value.replace(/\D/g, ''))}
+          style={inputStyle}
+        />
+      </div>
+
+      {props.error && <p style={errorStyle}>{props.error}</p>}
+
+      <button onClick={props.onSubmit} disabled={!enabled} style={{ ...primaryBtn(enabled), marginTop: '1rem' }}>
+        {props.loading ? 'Checking…' : 'Login'}
+      </button>
+    </div>
+  );
+}
+
+function PaymentStep(props: {
+  fullName: string;
+  mobile: string;
+  error: string | null;
+  loading: boolean;
+  onBack: () => void;
+  onPay: () => void;
+}) {
+  return (
+    <div>
+      <button onClick={props.onBack} style={backBtnStyle} disabled={props.loading}>← Back</button>
+      <h2 style={headingStyle}>Confirm & Pay</h2>
+      <p style={subTextStyle}>
+        Pay <strong style={{ color: '#fff' }}>Rs. 89</strong> via Razorpay to unlock the induction.
+      </p>
+
+      <div
+        style={{
+          background: 'rgba(255, 255, 255, 0.04)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '0.75rem',
+          padding: '1rem 1.1rem',
+          marginBottom: '1.5rem',
+          fontFamily: "'Manrope', system-ui, sans-serif",
+          fontSize: '0.9rem',
+          color: 'rgba(255, 255, 255, 0.85)',
+          lineHeight: 1.6,
+        }}
+      >
+        <div><span style={{ opacity: 0.6 }}>Name:</span> {props.fullName}</div>
+        <div><span style={{ opacity: 0.6 }}>Mobile:</span> {props.mobile}</div>
+        <div><span style={{ opacity: 0.6 }}>Amount:</span> Rs. 89</div>
+      </div>
+
+      {props.error && <p style={errorStyle}>{props.error}</p>}
+
+      <button onClick={props.onPay} disabled={props.loading} style={primaryBtn(!props.loading)}>
+        {props.loading ? 'Opening Razorpay…' : 'Pay Rs. 89 Securely'}
+      </button>
     </div>
   );
 }

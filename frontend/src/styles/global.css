@@ -19,6 +19,13 @@
 
   --page-scroll: 0px;
   --page-progress: 0;
+
+  /* Section palettes */
+  --section-ambient-left: rgba(122, 107, 255, 0.14);
+  --section-ambient-right: rgba(243, 201, 107, 0.12);
+  --section-dark-1: #04050a; /* deep navy/near-black */
+  --section-dark-2: #0b0f1a; /* slightly warmer charcoal */
+  --section-divider-glow: rgba(133, 184, 255, 0.06);
 }
 
 *,
@@ -200,3 +207,31 @@ video {
     opacity: 0.18;
   }
 }
+
+/* Section helpers for alternating ambient and dark backgrounds */
+.section {
+  position: relative;
+  z-index: 1; /* sit above ambient backdrop */
+  display: block;
+}
+
+.ambient-section {
+  background:
+    radial-gradient(circle at 12% 18%, var(--section-ambient-left), transparent 32%),
+    radial-gradient(circle at 86% 22%, var(--section-ambient-right), transparent 32%);
+}
+
+/* Dark sections fade in/out at their edges so they blend seamlessly
+   into the surrounding ambient sections — no hard color seams. */
+.dark-section {
+  background: linear-gradient(180deg,
+      rgba(4, 5, 10, 0) 0%,
+      rgba(4, 5, 10, 0.55) 8%,
+      rgba(4, 5, 10, 0.7) 50%,
+      rgba(4, 5, 10, 0.55) 92%,
+      rgba(4, 5, 10, 0) 100%);
+  color: var(--color-white);
+}
+
+/* Ensure full-bleed sections on tall viewports */
+/* content within sections maintains natural sizing */

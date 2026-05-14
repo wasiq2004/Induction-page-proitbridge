@@ -1,9 +1,20 @@
-import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import BrandLogo from '@components/BrandLogo';
 import InductionPlayer from '@components/InductionPlayer';
+import {
+  checkAccess,
+  clearAuthSession,
+  getAuthSession,
+} from '@lib/googleSheets';
 import styles from './CongratulationsPage.module.css';
+
+interface LocationState {
+  paymentVerified?: boolean;
+  paymentId?: string;
+  userName?: string;
+}
 
 const TRUST_BADGES = [
   '100% Secured Transaction',
@@ -37,10 +48,39 @@ const CHECK_PATH = 'M4 12l6 6L20 6';
 
 function CongratulationsPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const pageRef = useRef<HTMLDivElement>(null);
   const enrollBtnRef = useRef<HTMLButtonElement>(null);
+  const [accessVerified, setAccessVerified] = useState(false);
 
   useEffect(() => {
+    const state = (location.state ?? null) as LocationState | null;
+    if (state?.paymentVerified) {
+      setAccessVerified(true);
+      return;
+    }
+    const session = getAuthSession();
+    if (!session) {
+      navigate('/', { replace: true });
+      return;
+    }
+    let cancelled = false;
+    checkAccess(session.mobile).then((result) => {
+      if (cancelled) return;
+      if (result.hasAccess) {
+        setAccessVerified(true);
+      } else {
+        clearAuthSession();
+        navigate('/', { replace: true });
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [location.state, navigate]);
+
+  useEffect(() => {
+    if (!accessVerified) return;
     const ctx = gsap.context(() => {
       gsap.from('[data-animate="top"]', {
         y: 28,
@@ -61,9 +101,10 @@ function CongratulationsPage() {
     }, pageRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [accessVerified]);
 
   useEffect(() => {
+    if (!accessVerified) return;
     const button = enrollBtnRef.current;
     if (!button || !button.parentElement) return;
     const wrapper = button.parentElement;
@@ -86,7 +127,25 @@ function CongratulationsPage() {
       wrapper.removeEventListener('mousemove', onMove);
       wrapper.removeEventListener('mouseleave', onLeave);
     };
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accessVerified]);
+
+  if (!accessVerified) {
+    return (
+      <div
+        style={{
+          minHeight: '60vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'rgba(255,255,255,0.7)',
+          fontFamily: "'Manrope', system-ui, sans-serif",
+        }}
+      >
+        Verifying your access…
+      </div>
+    );
+  }
 
   return (
     <div ref={pageRef} className={styles.page}>

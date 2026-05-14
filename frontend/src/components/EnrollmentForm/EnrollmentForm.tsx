@@ -1,10 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { useScrollReveal } from '@hooks/useScrollReveal';
 import { submitEnrollment } from '@services/enrollmentService';
 import { indianStates } from '@constants/indianStates';
 import { ProgramType, PaymentMethod } from '@t/index';
 import type { EnrollmentFormData, CourseType } from '@t/index';
+import {
+  openEnrollmentCheckout,
+  CheckoutDismissedError,
+} from '@lib/razorpay';
+import { trackEvent, trackCustom } from '@lib/metaPixel';
+import { env } from '@lib/env';
 import styles from './EnrollmentForm.module.css';
 
 type SubmitState = 'idle' | 'loading' | 'success';
@@ -73,9 +80,11 @@ const validateField = (name: keyof EnrollmentFormData, value: string): string | 
 };
 
 function EnrollmentForm() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<EnrollmentFormData>(INITIAL);
   const [errors, setErrors] = useState<Partial<Record<keyof EnrollmentFormData, string>>>({});
   const [submitState, setSubmitState] = useState<SubmitState>('idle');
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const { ref: personalRef, isVisible: pVisible } = useScrollReveal<HTMLDivElement>();
   const { ref: addressRef, isVisible: aVisible } = useScrollReveal<HTMLDivElement>();
@@ -193,6 +202,7 @@ function EnrollmentForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
 
     const allErrors: Partial<Record<keyof EnrollmentFormData, string>> = {};
     const requiredFields: (keyof EnrollmentFormData)[] = [
@@ -210,11 +220,44 @@ function EnrollmentForm() {
 
     setSubmitState('loading');
     try {
-      await submitEnrollment(formData);
+      const paymentId = await openEnrollmentCheckout({
+        name: formData.fullName,
+        email: formData.email,
+        contact: formData.mobile,
+      });
+
+      const { enrollmentId } = await submitEnrollment(formData, paymentId);
+
+      trackEvent('Purchase', { value: 1000, currency: env.razorpay.currency });
+      trackCustom('EnrollmentPaymentSuccess', {
+        enrollmentId,
+        paymentMethod: formData.paymentMethod,
+        paymentId,
+        value: 1000,
+        currency: env.razorpay.currency,
+      });
+
       setSubmitState('success');
       if (submitBtnRef.current) launchConfetti(submitBtnRef.current);
-    } catch {
+
+      setTimeout(
+        () =>
+          navigate('/enrollment-confirmation', {
+            state: { enrollmentId, paymentId, formData },
+          }),
+        900,
+      );
+    } catch (err) {
       setSubmitState('idle');
+      if (err instanceof CheckoutDismissedError) {
+        setSubmitError('Payment cancelled. You can try again when ready.');
+      } else {
+        setSubmitError(
+          err instanceof Error
+            ? err.message
+            : 'Something went wrong. Please try again.',
+        );
+      }
     }
   };
 
@@ -456,6 +499,20 @@ function EnrollmentForm() {
           <p className={styles.encryptedNote}>
             Secure payment powered by Razorpay - 100% encrypted
           </p>
+          {submitError && (
+            <p
+              role="alert"
+              style={{
+                marginTop: '0.75rem',
+                color: '#ff8a8a',
+                fontFamily: "'Manrope', system-ui, sans-serif",
+                fontSize: '0.85rem',
+                textAlign: 'center',
+              }}
+            >
+              {submitError}
+            </p>
+          )}
         </div>
       </form>
     </div>
