@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { useScrollReveal } from '@hooks/useScrollReveal';
 import styles from './PrerequisitesSection.module.css';
@@ -7,8 +6,11 @@ import styles from './PrerequisitesSection.module.css';
 const MOTIVATION = 'Your Career Transformation in AI Begins Here.';
 const VIDEO_PATH = '/assets/landing-page-video.mp4';
 
-function PrerequisitesSection() {
-  const navigate = useNavigate();
+interface PrerequisitesSectionProps {
+  onInductionClick?: () => void;
+}
+
+function PrerequisitesSection({ onInductionClick }: PrerequisitesSectionProps) {
   const { ref: sectionRef, isVisible } = useScrollReveal<HTMLElement>();
   const showcaseRef = useRef<HTMLDivElement>(null);
 
@@ -121,7 +123,7 @@ function PrerequisitesSection() {
 
         <div className={styles.ctaWrapper}>
           <p className={styles.ctaOriginal}>Usual Price Rs. 299</p>
-          <button className={styles.ctaButton} onClick={() => navigate('/congratulations')}>Get Now Rs. 89</button>
+          <button className={styles.ctaButton} onClick={() => onInductionClick?.()}>Get Now Rs. 89</button>
         </div>
       </div>
     </section>

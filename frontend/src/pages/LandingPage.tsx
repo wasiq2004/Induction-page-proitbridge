@@ -59,7 +59,7 @@ function LandingPage({ onInductionClick }: LandingPageProps) {
 
       <HeroSection onInductionClick={onInductionClick} />
       <BlobDivider nextBg="#0d1230" />
-      <PrerequisitesSection />
+      <PrerequisitesSection onInductionClick={onInductionClick} />
       <BlobDivider nextBg="#0a1028" />
       <AdmissionsSection />
       <BlobDivider nextBg="#080d20" />
@@ -69,7 +69,7 @@ function LandingPage({ onInductionClick }: LandingPageProps) {
       <BlobDivider nextBg="#0d1230" />
       <TestimonialsSection />
       <BlobDivider nextBg="#050812" />
-      <Footer />
+      <Footer onInductionClick={onInductionClick} />
     </main>
   );
 }

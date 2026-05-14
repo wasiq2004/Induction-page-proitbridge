@@ -1,7 +1,11 @@
 import BrandLogo from '@components/BrandLogo';
 import styles from './Footer.module.css';
 
-function Footer() {
+interface FooterProps {
+  onInductionClick?: () => void;
+}
+
+function Footer({ onInductionClick }: FooterProps) {
   return (
     <footer className={styles.footer}>
       <div className={styles.shell}>
@@ -12,7 +16,7 @@ function Footer() {
         <p className={styles.ctaHeading}>
           Get our INDUCTION Session now at <span className={styles.ctaPrice}>Rs. 89</span>
         </p>
-        <button className={styles.ctaButton}>Get INDUCTION Session - Rs. 89</button>
+        <button className={styles.ctaButton} onClick={() => onInductionClick?.()}>Get INDUCTION Session - Rs. 89</button>
 
         <nav className={styles.links} aria-label="Footer navigation">
           <a href="#" className={styles.link}>Terms &amp; Conditions</a>
