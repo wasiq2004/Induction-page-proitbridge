@@ -21,7 +21,7 @@
 }
 
 .brandText {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: var(--font-display);
   font-weight: 600;
   font-size: clamp(2.5rem, 6vw, 5rem);
   fill: none;
@@ -33,7 +33,7 @@
 }
 
 .tagline {
-  font-family: 'Manrope', system-ui, sans-serif;
+  font-family: var(--font-sans);
   color: #6FD3F2;
   opacity: 0;
   font-size: clamp(1rem, 2vw, 1.25rem);

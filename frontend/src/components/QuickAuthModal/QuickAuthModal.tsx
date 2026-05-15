@@ -5,7 +5,7 @@ import {
   startInductionPayment,
   CheckoutDismissedError,
 } from '@lib/razorpay';
-import { checkAccess, saveAuthSession } from '@lib/googleSheets';
+import { checkAccess, normalizeMobile, saveAuthSession } from '@lib/googleSheets';
 import { trackCustom } from '@lib/metaPixel';
 
 interface QuickAuthModalProps {
@@ -13,14 +13,14 @@ interface QuickAuthModalProps {
   onClose: () => void;
 }
 
-type AuthStep = 'selection' | 'details' | 'login' | 'payment';
+type AuthStep = 'consent' | 'selection' | 'details' | 'login' | 'payment';
 
 const NAME_REGEX = /^.{2,}$/;
 const MOBILE_REGEX = /^[6-9]\d{9}$/;
 
 function QuickAuthModal({ isOpen, onClose }: QuickAuthModalProps) {
   const navigate = useNavigate();
-  const [step, setStep] = useState<AuthStep>('selection');
+  const [step, setStep] = useState<AuthStep>('consent');
   const [fullName, setFullName] = useState('');
   const [mobile, setMobile] = useState('');
   const [loading, setLoading] = useState(false);
@@ -30,7 +30,7 @@ function QuickAuthModal({ isOpen, onClose }: QuickAuthModalProps) {
 
   useEffect(() => {
     if (isOpen) {
-      setStep('selection');
+      setStep('consent');
       setFullName('');
       setMobile('');
       setError(null);
@@ -75,14 +75,35 @@ function QuickAuthModal({ isOpen, onClose }: QuickAuthModalProps) {
     return null;
   };
 
-  const goToPayment = () => {
+  const goToPayment = async () => {
     const err = validateDetails();
     if (err) {
       setError(err);
       return;
     }
     setError(null);
-    setStep('payment');
+    setLoading(true);
+    try {
+      const normalized = normalizeMobile(mobile);
+      const result = await checkAccess(normalized);
+      if (result.status === 'SUCCESS') {
+        setError('This mobile number is already registered. Please use the Login option above.');
+        return;
+      }
+      if (result.status === 'PENDING') {
+        setError(
+          'A payment is already in progress for this number. Please wait a few minutes, then log in.',
+        );
+        return;
+      }
+      // Persist the normalized form so payment/registration uses the canonical value.
+      setMobile(normalized);
+      setStep('payment');
+    } catch {
+      setError('Could not verify the number. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogin = async () => {
@@ -94,14 +115,21 @@ function QuickAuthModal({ isOpen, onClose }: QuickAuthModalProps) {
     setError(null);
     setLoading(true);
     try {
-      const result = await checkAccess(mobile);
+      const normalized = normalizeMobile(mobile);
+      const result = await checkAccess(normalized);
       if (result.hasAccess) {
-        saveAuthSession(mobile, result.userName ?? 'Student');
+        saveAuthSession(normalized, result.userName ?? 'Student');
         onClose();
         setTimeout(() => navigate('/congratulations'), 200);
-      } else {
-        setError('No successful payment found for this mobile number.');
+        return;
       }
+      if (result.status === 'PENDING') {
+        setError(
+          'Your payment is still being processed. Please wait a few minutes and try logging in again.',
+        );
+        return;
+      }
+      setError('No payment found for this mobile number. Please pay first or check the number.');
     } catch {
       setError('Could not verify access. Please try again.');
     } finally {
@@ -186,6 +214,13 @@ function QuickAuthModal({ isOpen, onClose }: QuickAuthModalProps) {
           ✕
         </button>
 
+        {step === 'consent' && (
+          <ConsentStep
+            onAgree={() => setStep('selection')}
+            onCancel={handleClose}
+          />
+        )}
+
         {step === 'selection' && <SelectionStep onPay={() => setStep('details')} onLogin={() => setStep('login')} />}
 
         {step === 'details' && (
@@ -193,6 +228,7 @@ function QuickAuthModal({ isOpen, onClose }: QuickAuthModalProps) {
             fullName={fullName}
             mobile={mobile}
             error={error}
+            loading={loading}
             onBack={() => setStep('selection')}
             onChangeName={setFullName}
             onChangeMobile={setMobile}
@@ -229,7 +265,7 @@ function QuickAuthModal({ isOpen, onClose }: QuickAuthModalProps) {
 // --- Step components -------------------------------------------------------
 
 const labelStyle: React.CSSProperties = {
-  fontFamily: "'Manrope', system-ui, sans-serif",
+  fontFamily: 'var(--font-sans)',
   fontSize: '0.85rem',
   color: 'rgba(255, 255, 255, 0.7)',
   display: 'block',
@@ -243,7 +279,7 @@ const inputStyle: React.CSSProperties = {
   border: '1px solid rgba(111, 211, 242, 0.3)',
   borderRadius: '0.75rem',
   color: '#fff',
-  fontFamily: "'Manrope', system-ui, sans-serif",
+  fontFamily: 'var(--font-sans)',
   fontSize: '1rem',
   outline: 'none',
 };
@@ -258,7 +294,7 @@ const primaryBtn = (enabled: boolean): React.CSSProperties => ({
   border: 'none',
   borderRadius: '0.75rem',
   fontSize: '1rem',
-  fontFamily: "'Cormorant Garamond', Georgia, serif",
+  fontFamily: 'var(--font-display)',
   fontWeight: 600,
   cursor: enabled ? 'pointer' : 'not-allowed',
 });
@@ -269,13 +305,13 @@ const backBtnStyle: React.CSSProperties = {
   color: '#6FD3F2',
   cursor: 'pointer',
   fontSize: '0.9rem',
-  fontFamily: "'Manrope', system-ui, sans-serif",
+  fontFamily: 'var(--font-sans)',
   marginBottom: '1.5rem',
   padding: 0,
 };
 
 const headingStyle: React.CSSProperties = {
-  fontFamily: "'Cormorant Garamond', Georgia, serif",
+  fontFamily: 'var(--font-display)',
   fontSize: '1.5rem',
   fontWeight: 600,
   marginBottom: '0.5rem',
@@ -283,7 +319,7 @@ const headingStyle: React.CSSProperties = {
 };
 
 const subTextStyle: React.CSSProperties = {
-  fontFamily: "'Manrope', system-ui, sans-serif",
+  fontFamily: 'var(--font-sans)',
   fontSize: '0.9rem',
   color: 'rgba(255, 255, 255, 0.7)',
   marginBottom: '2rem',
@@ -291,11 +327,91 @@ const subTextStyle: React.CSSProperties = {
 };
 
 const errorStyle: React.CSSProperties = {
-  fontFamily: "'Manrope', system-ui, sans-serif",
+  fontFamily: 'var(--font-sans)',
   fontSize: '0.85rem',
   color: '#ff8a8a',
   marginTop: '0.75rem',
 };
+
+function ConsentStep({ onAgree, onCancel }: { onAgree: () => void; onCancel: () => void }) {
+  return (
+    <div>
+      <div
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          padding: '0.4rem 0.85rem',
+          borderRadius: 999,
+          border: '1px solid rgba(43, 200, 245, 0.3)',
+          background: 'rgba(43, 200, 245, 0.08)',
+          color: '#6FD3F2',
+          fontFamily: 'var(--font-sans)',
+          fontSize: '0.72rem',
+          fontWeight: 700,
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase',
+          marginBottom: '1rem',
+        }}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <circle cx="12" cy="12" r="9" />
+          <polyline points="12 7 12 12 15 14" />
+        </svg>
+        <span>Before you continue</span>
+      </div>
+
+      <h2 style={headingStyle}>This is a 30-minute induction</h2>
+      <p style={{ ...subTextStyle, marginBottom: '1.25rem' }}>
+        Right after payment you will be taken to an exclusive video that runs for about{' '}
+        <strong style={{ color: '#fff' }}>30 minutes</strong>. You can&apos;t fast-forward
+        through it and you&apos;ll get the most out of it if you watch in one sitting.
+      </p>
+
+      <div
+        style={{
+          background: 'rgba(255, 255, 255, 0.04)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '0.75rem',
+          padding: '0.95rem 1.1rem',
+          marginBottom: '1.75rem',
+          fontFamily: 'var(--font-sans)',
+          fontSize: '0.88rem',
+          color: 'rgba(255, 255, 255, 0.78)',
+          lineHeight: 1.6,
+        }}
+      >
+        <p style={{ marginBottom: '0.5rem' }}>Please confirm you can:</p>
+        <ul style={{ paddingLeft: '1.1rem', margin: 0, listStyle: 'disc' }}>
+          <li>Set aside <strong style={{ color: '#fff' }}>30 minutes</strong> right now</li>
+          <li>Watch on a stable internet connection</li>
+          <li>Use headphones or be in a quiet place</li>
+        </ul>
+      </div>
+
+      <button onClick={onAgree} style={primaryBtn(true)}>
+        Yes, I&apos;m ready — continue
+      </button>
+      <button
+        onClick={onCancel}
+        style={{
+          width: '100%',
+          marginTop: '0.75rem',
+          padding: '0.9rem',
+          background: 'transparent',
+          color: 'rgba(255, 255, 255, 0.55)',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          borderRadius: '0.75rem',
+          fontSize: '0.95rem',
+          fontFamily: 'var(--font-sans)',
+          cursor: 'pointer',
+        }}
+      >
+        I&apos;ll come back later
+      </button>
+    </div>
+  );
+}
 
 function SelectionStep({ onPay, onLogin }: { onPay: () => void; onLogin: () => void }) {
   return (
@@ -315,7 +431,7 @@ function SelectionStep({ onPay, onLogin }: { onPay: () => void; onLogin: () => v
             padding: '1rem',
             borderRadius: '0.75rem',
             fontSize: '1rem',
-            fontFamily: "'Cormorant Garamond', Georgia, serif",
+            fontFamily: 'var(--font-display)',
             fontWeight: 600,
             cursor: 'pointer',
           }}
@@ -331,12 +447,16 @@ function DetailsStep(props: {
   fullName: string;
   mobile: string;
   error: string | null;
+  loading: boolean;
   onBack: () => void;
   onChangeName: (v: string) => void;
   onChangeMobile: (v: string) => void;
   onContinue: () => void;
 }) {
-  const enabled = props.fullName.trim().length >= 2 && /^[6-9]\d{9}$/.test(props.mobile);
+  const enabled =
+    !props.loading &&
+    props.fullName.trim().length >= 2 &&
+    /^[6-9]\d{9}$/.test(props.mobile);
   return (
     <div>
       <button onClick={props.onBack} style={backBtnStyle}>← Back</button>
@@ -361,7 +481,16 @@ function DetailsStep(props: {
           maxLength={10}
           placeholder="10-digit mobile number"
           value={props.mobile}
-          onChange={(e) => props.onChangeMobile(e.target.value.replace(/\D/g, ''))}
+          onChange={(e) => {
+            const digits = e.target.value.replace(/\D/g, '');
+            // Drop country-code prefix on the fly so the field always shows 10 digits.
+            const trimmed = digits.length === 12 && digits.startsWith('91')
+              ? digits.slice(2)
+              : digits.length === 11 && digits.startsWith('0')
+                ? digits.slice(1)
+                : digits;
+            props.onChangeMobile(trimmed);
+          }}
           style={inputStyle}
         />
       </div>
@@ -369,7 +498,7 @@ function DetailsStep(props: {
       {props.error && <p style={errorStyle}>{props.error}</p>}
 
       <button onClick={props.onContinue} disabled={!enabled} style={{ ...primaryBtn(enabled), marginTop: '1rem' }}>
-        Continue to Payment
+        {props.loading ? 'Checking number…' : 'Continue to Payment'}
       </button>
     </div>
   );
@@ -397,7 +526,16 @@ function LoginStep(props: {
           maxLength={10}
           placeholder="10-digit mobile number"
           value={props.mobile}
-          onChange={(e) => props.onChangeMobile(e.target.value.replace(/\D/g, ''))}
+          onChange={(e) => {
+            const digits = e.target.value.replace(/\D/g, '');
+            // Drop country-code prefix on the fly so the field always shows 10 digits.
+            const trimmed = digits.length === 12 && digits.startsWith('91')
+              ? digits.slice(2)
+              : digits.length === 11 && digits.startsWith('0')
+                ? digits.slice(1)
+                : digits;
+            props.onChangeMobile(trimmed);
+          }}
           style={inputStyle}
         />
       </div>
@@ -434,7 +572,7 @@ function PaymentStep(props: {
           borderRadius: '0.75rem',
           padding: '1rem 1.1rem',
           marginBottom: '1.5rem',
-          fontFamily: "'Manrope', system-ui, sans-serif",
+          fontFamily: 'var(--font-sans)',
           fontSize: '0.9rem',
           color: 'rgba(255, 255, 255, 0.85)',
           lineHeight: 1.6,

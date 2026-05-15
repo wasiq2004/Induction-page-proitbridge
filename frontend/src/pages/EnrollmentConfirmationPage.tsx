@@ -97,7 +97,7 @@ function EnrollmentConfirmationPage() {
         background:
           'radial-gradient(circle at 12% 8%, rgba(43, 200, 245, 0.12), transparent 22%), radial-gradient(circle at 88% 18%, rgba(46, 125, 232, 0.14), transparent 26%), linear-gradient(180deg, #03101F 0%, #082341 100%)',
         color: '#fff',
-        fontFamily: "'Manrope', system-ui, sans-serif",
+        fontFamily: 'var(--font-sans)',
       }}
     >
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
@@ -129,7 +129,7 @@ function EnrollmentConfirmationPage() {
 
         <h1
           style={{
-            fontFamily: "'Cormorant Garamond', Georgia, serif",
+            fontFamily: 'var(--font-display)',
             fontSize: 'clamp(2rem, 4vw, 2.8rem)',
             fontWeight: 600,
             marginBottom: '1rem',
@@ -154,7 +154,7 @@ function EnrollmentConfirmationPage() {
         >
           <h2
             style={{
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontFamily: 'var(--font-display)',
               fontSize: '1.4rem',
               marginBottom: '1rem',
             }}

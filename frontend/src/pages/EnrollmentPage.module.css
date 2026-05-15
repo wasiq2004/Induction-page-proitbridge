@@ -212,6 +212,10 @@
 }
 
 @media (max-width: 760px) {
+  .page {
+    padding: 1.5rem 0.75rem 3rem;
+  }
+
   .header {
     flex-direction: column;
     align-items: flex-start;
@@ -219,9 +223,24 @@
   }
 
   .benefitsSection,
-  .formatsSection,
-  .formSection {
+  .formatsSection {
     padding: 1.15rem;
     border-radius: 1.25rem;
+  }
+
+  /* The form already provides its own padded card — drop the outer
+     wrapper's horizontal padding on mobile so the inner form has
+     room to breathe instead of stacking two paddings. */
+  .formSection {
+    padding: 1.15rem 0.5rem;
+    border-radius: 1.25rem;
+  }
+
+  .sectionHeader {
+    margin-bottom: 1rem;
+  }
+
+  .formIntro h2 {
+    font-size: clamp(1.5rem, 5.5vw, 2.1rem);
   }
 }

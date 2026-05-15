@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import BrandLogo from '@components/BrandLogo';
 import styles from './Footer.module.css';
 
@@ -16,16 +17,16 @@ function Footer({ onInductionClick }: FooterProps) {
         <p className={styles.ctaHeading}>
           Get our INDUCTION Session now at <span className={styles.ctaPrice}>Rs. 89</span>
         </p>
-        <button className={styles.ctaButton} onClick={() => onInductionClick?.()}>Get INDUCTION Session - Rs. 89</button>
+        <button className={styles.ctaButton} onClick={() => onInductionClick?.()}>Let's Get Started</button>
 
         <nav className={styles.links} aria-label="Footer navigation">
-          <a href="#" className={styles.link}>Terms &amp; Conditions</a>
+          <Link to="/terms" className={styles.link}>Terms &amp; Conditions</Link>
           <span className={styles.divider} aria-hidden="true" />
-          <a href="#" className={styles.link}>Privacy Policy</a>
+          <Link to="/privacy" className={styles.link}>Privacy Policy</Link>
           <span className={styles.divider} aria-hidden="true" />
-          <a href="#" className={styles.link}>Cancellation &amp; Refund</a>
+          <Link to="/refund" className={styles.link}>Cancellation &amp; Refund</Link>
           <span className={styles.divider} aria-hidden="true" />
-          <a href="#" className={styles.link}>Contact Us</a>
+          <Link to="/contact" className={styles.link}>Contact Us</Link>
         </nav>
 
         <p className={styles.email}>info@proitbridge.com</p>

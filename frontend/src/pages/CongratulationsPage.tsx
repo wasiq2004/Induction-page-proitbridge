@@ -7,6 +7,7 @@ import {
   checkAccess,
   clearAuthSession,
   getAuthSession,
+  recordEnrollmentClick,
 } from '@lib/googleSheets';
 import styles from './CongratulationsPage.module.css';
 
@@ -139,7 +140,7 @@ function CongratulationsPage() {
           alignItems: 'center',
           justifyContent: 'center',
           color: 'rgba(255,255,255,0.7)',
-          fontFamily: "'Manrope', system-ui, sans-serif",
+          fontFamily: 'var(--font-sans)',
         }}
       >
         Verifying your access…
@@ -220,9 +221,17 @@ function CongratulationsPage() {
             <button
               ref={enrollBtnRef}
               className={styles.ctaButton}
-              onClick={() => navigate('/enrollment')}
+              onClick={() => {
+                const session = getAuthSession();
+                recordEnrollmentClick({
+                  mobile: session?.mobile ?? 'anonymous',
+                  fullName: session?.name ?? 'anonymous',
+                  videoId: 'congrats-induction-v1',
+                });
+                navigate('/enrollment');
+              }}
             >
-              Complete Enrollment | Rs. 89
+              Complete Enrollment | Rs.1000
             </button>
           </div>
         </section>

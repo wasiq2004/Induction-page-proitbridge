@@ -44,6 +44,11 @@ export const env = {
     landingId: str('VITE_VIMEO_LANDING_VIDEO_ID'),
     inductionId: str('VITE_VIMEO_INDUCTION_VIDEO_ID'),
   },
+  video: {
+    // Falls back to the local public/assets path so dev still works if a
+    // developer happens to have the file on disk.
+    inductionUrl: str('VITE_INDUCTION_VIDEO_URL', '/assets/congrats-page-video.mp4'),
+  },
   company: {
     name: str('VITE_COMPANY_NAME'),
     gstin: str('VITE_COMPANY_GSTIN'),

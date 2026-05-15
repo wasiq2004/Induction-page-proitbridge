@@ -2,7 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { useScrollReveal } from '@hooks/useScrollReveal';
-import { submitEnrollment } from '@services/enrollmentService';
+import {
+  registerPendingEnrollment,
+  finalizeEnrollmentPayment,
+} from '@services/enrollmentService';
 import { indianStates } from '@constants/indianStates';
 import { ProgramType, PaymentMethod } from '@t/index';
 import type { EnrollmentFormData, CourseType } from '@t/index';
@@ -219,14 +222,22 @@ function EnrollmentForm() {
     }
 
     setSubmitState('loading');
+    let enrollmentId: string | null = null;
     try {
+      // Phase 1 — write PENDING row, get enrollmentId back.
+      const pending = await registerPendingEnrollment(formData);
+      enrollmentId = pending.enrollmentId;
+
+      // Open Razorpay. Throws CheckoutDismissedError on user cancel,
+      // CheckoutFailedError on gateway failure.
       const paymentId = await openEnrollmentCheckout({
         name: formData.fullName,
         email: formData.email,
         contact: formData.mobile,
       });
 
-      const { enrollmentId } = await submitEnrollment(formData, paymentId);
+      // Phase 2 — flip the row to SUCCESS with the payment id.
+      await finalizeEnrollmentPayment(enrollmentId, paymentId, 'SUCCESS');
 
       trackEvent('Purchase', { value: 1000, currency: env.razorpay.currency });
       trackCustom('EnrollmentPaymentSuccess', {
@@ -249,6 +260,11 @@ function EnrollmentForm() {
       );
     } catch (err) {
       setSubmitState('idle');
+      // If we created a PENDING row, mark the outcome so the sheet matches reality.
+      if (enrollmentId) {
+        const status = err instanceof CheckoutDismissedError ? 'CANCELLED' : 'FAILED';
+        finalizeEnrollmentPayment(enrollmentId, '', status);
+      }
       if (err instanceof CheckoutDismissedError) {
         setSubmitError('Payment cancelled. You can try again when ready.');
       } else {
@@ -505,7 +521,7 @@ function EnrollmentForm() {
               style={{
                 marginTop: '0.75rem',
                 color: '#ff8a8a',
-                fontFamily: "'Manrope', system-ui, sans-serif",
+                fontFamily: 'var(--font-sans)',
                 fontSize: '0.85rem',
                 textAlign: 'center',
               }}

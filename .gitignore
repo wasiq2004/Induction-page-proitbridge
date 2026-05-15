@@ -3,3 +3,4 @@ node_modules
 .env
 .env.local
 *.log
+/frontend/public/assets/congrats-page-video.mp4

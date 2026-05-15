@@ -19,6 +19,8 @@ interface ImportMetaEnv {
   readonly VITE_VIMEO_LANDING_VIDEO_ID: string;
   readonly VITE_VIMEO_INDUCTION_VIDEO_ID: string;
 
+  readonly VITE_INDUCTION_VIDEO_URL: string;
+
   readonly VITE_COMPANY_NAME: string;
   readonly VITE_COMPANY_GSTIN: string;
   readonly VITE_COMPANY_ADDRESS: string;

@@ -127,8 +127,8 @@ function EnrollmentPage() {
         </header>
 
         <section className={styles.hero} data-enroll-animate="top">
-          <p className={styles.kicker}>Luxury career transformation</p>
-          <h1>Transform your career with a premium AI learning experience.</h1>
+          {/* <p className={styles.kicker}>Luxury career transformation</p> */}
+          <h2 className={styles.kicker}>Transform your career with a premium AI learning experience.</h2>
           <p>
             Join thousands of working professionals mastering AI and building the skills that
             define the future. Limited spots are available for the next cohort.

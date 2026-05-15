@@ -1,7 +1,7 @@
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  25%       { transform: translateX(-6px); }
-  75%       { transform: translateX(6px); }
+  25%      { transform: translateX(-6px); }
+  75%      { transform: translateX(6px); }
 }
 
 @keyframes spinnerRotate {
@@ -12,40 +12,46 @@
   to { stroke-dashoffset: 0; }
 }
 
-/* ─── Page ──────────────────────────────────────────────────────── */
+/* ─── Page wrapper ──────────────────────────────────────────────────
+   The form is rendered INSIDE the EnrollmentPage `.formSection` card,
+   so this wrapper stays neutral — no solid background, no min-height,
+   no extra padding. It just centers the form card. */
 
 .page {
-  min-height: 100vh;
-  background: #03101F;
-  padding: 4rem 2rem;
+  position: relative;
   display: flex;
-  align-items: flex-start;
   justify-content: center;
+  align-items: flex-start;
+  width: 100%;
 }
 
-/* ─── Form card ─────────────────────────────────────────────────── */
+/* ─── Form card ───────────────────────────────────────────────────── */
 
 .formCard {
   width: 100%;
-  max-width: 700px;
-  background: rgba(255, 255, 255, 0.03);
+  max-width: 760px;
+  padding: 2.75rem 2.5rem;
+  border-radius: 1.25rem;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(111, 211, 242, 0.05), transparent 38%),
+    rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 1.5rem;
-  padding: 3rem;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 30px 80px rgba(0, 0, 0, 0.3);
 }
 
-/* ─── Heading ───────────────────────────────────────────────────── */
+/* ─── Heading ─────────────────────────────────────────────────────── */
 
 .heading {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
   font-weight: 700;
   color: #ffffff;
   text-align: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
   overflow: hidden;
+  letter-spacing: -0.01em;
 }
 
 .headingWord {
@@ -53,7 +59,7 @@
   will-change: clip-path;
 }
 
-/* ─── Progress indicator ────────────────────────────────────────── */
+/* ─── Progress indicator ──────────────────────────────────────────── */
 
 .progressSteps {
   display: flex;
@@ -67,72 +73,100 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  font-family: 'Manrope', system-ui, sans-serif;
-  font-size: 0.7rem;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   color: var(--color-muted);
   transition: color 0.3s ease;
 }
 
 .step.active {
-  color: #2E7DE8;
+  color: #6FD3F2;
 }
 
 .stepDot {
-  width: 10px;
-  height: 10px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
-  transition: background 0.3s ease;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.02);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .step.active .stepDot {
-  background: #2E7DE8;
+  background: #6FD3F2;
+  box-shadow: 0 0 0 4px rgba(111, 211, 242, 0.18);
 }
 
 .stepConnector {
   flex: 1;
   height: 2px;
   background: rgba(255, 255, 255, 0.1);
-  max-width: 80px;
-  margin-bottom: 14px;
+  max-width: 70px;
+  margin: 0 4px 18px;
   transition: background 0.3s ease;
 }
 
 .stepConnector.filled {
-  background: #2E7DE8;
+  background: linear-gradient(90deg, #6FD3F2, #2E7DE8);
 }
 
-/* ─── Section headings ──────────────────────────────────────────── */
+/* ─── Section grouping ────────────────────────────────────────────── */
 
 .sectionGroup {
-  margin-bottom: 2rem;
+  margin-bottom: 2.25rem;
+  padding-bottom: 2.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sectionGroup:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .sectionHeading {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #2E7DE8;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  color: #6FD3F2;
   margin-bottom: 1.5rem;
 }
 
-/* ─── Input wrapper (floating label) ───────────────────────────── */
+.sectionHeading::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6FD3F2;
+  box-shadow: 0 0 0 3px rgba(111, 211, 242, 0.18);
+  flex-shrink: 0;
+}
+
+/* ─── Field rows ──────────────────────────────────────────────────── */
 
 .fieldRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 1.1rem;
+  margin-bottom: 1.1rem;
 }
 
 .fieldRow.single {
   grid-template-columns: 1fr;
 }
+
+.fieldRow:last-child {
+  margin-bottom: 0;
+}
+
+/* ─── Floating-label inputs ───────────────────────────────────────── */
 
 .inputWrapper {
   position: relative;
@@ -141,21 +175,31 @@
 .input,
 .select {
   width: 100%;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.75rem;
-  padding: 1.25rem 1rem 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.875rem;
+  padding: 1.5rem 1.05rem 0.6rem;
   color: #ffffff;
-  font-family: 'Manrope', system-ui, sans-serif;
-  font-size: 0.95rem;
+  font-family: var(--font-sans);
+  font-size: 0.98rem;
   outline: none;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   appearance: none;
-  will-change: border-color, box-shadow;
+  -webkit-appearance: none;
+  min-height: 60px;
 }
 
 .select {
   cursor: pointer;
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgba(255, 255, 255, 0.45) 50%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.45) 50%, transparent 50%);
+  background-position:
+    calc(100% - 1.15rem) 55%,
+    calc(100% - 0.75rem) 55%;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 2.25rem;
 }
 
 .select option {
@@ -163,10 +207,17 @@
   color: #ffffff;
 }
 
+.input:hover,
+.select:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.05);
+}
+
 .input:focus,
 .select:focus {
-  border-color: #2E7DE8;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  border-color: #6FD3F2;
+  background: rgba(111, 211, 242, 0.05);
+  box-shadow: 0 0 0 4px rgba(111, 211, 242, 0.14);
 }
 
 .input.error,
@@ -175,92 +226,107 @@
   animation: shake 0.3s ease;
 }
 
-.floatingLabel {
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--color-muted);
-  font-family: 'Manrope', system-ui, sans-serif;
-  font-size: 0.875rem;
-  pointer-events: none;
-  transition: all 0.2s ease;
-  transform-origin: left center;
+.input::placeholder {
+  color: transparent;
 }
 
+.floatingLabel {
+  position: absolute;
+  left: 1.05rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.55);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  pointer-events: none;
+  transition: top 0.18s ease, transform 0.18s ease, color 0.18s ease, font-size 0.18s ease;
+  transform-origin: left top;
+}
+
+/* Float the label up when the input is focused OR has content.
+   Inputs use `placeholder=" "` so `:placeholder-shown` is true only when empty.
+   Selects are always treated as "has value" — we use :has() so the label
+   sits in the upper position permanently (the dropdown's own text would
+   otherwise overlap with the label). */
 .input:focus + .floatingLabel,
 .input:not(:placeholder-shown) + .floatingLabel,
-.select:focus + .floatingLabel,
-.select:not([value=""]) + .floatingLabel {
-  top: 0.625rem;
-  transform: translateY(0) scale(0.82);
-  color: #2E7DE8;
+.inputWrapper:has(select) .floatingLabel {
+  top: 0.55rem;
+  transform: translateY(0);
+  font-size: 0.72rem;
+  color: #6FD3F2;
+  letter-spacing: 0.04em;
 }
 
 .errorMsg {
-  font-family: 'Manrope', system-ui, sans-serif;
-  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
   color: #EF4444;
-  margin-top: 0.25rem;
+  margin-top: 0.4rem;
   padding-left: 0.25rem;
 }
 
-/* ─── Radio program cards ───────────────────────────────────────── */
+/* ─── Program cards (radio) ───────────────────────────────────────── */
 
 .programGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 1.1rem;
 }
 
 .programCard {
   position: relative;
-  padding: 0.875rem 1rem;
+  padding: 1.05rem 1.15rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.75rem;
+  border-radius: 0.9rem;
   cursor: pointer;
-  transition: border-color 0.25s ease, background 0.25s ease;
   display: flex;
   align-items: center;
-  gap: 0.625rem;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.025);
+  transition: border-color 0.22s ease, background 0.22s ease, transform 0.22s ease;
 }
 
 .programCard:hover {
-  border-color: rgba(59, 130, 246, 0.4);
+  border-color: rgba(111, 211, 242, 0.45);
+  background: rgba(111, 211, 242, 0.04);
+  transform: translateY(-1px);
 }
 
 .programCard.selected {
-  border-color: #2E7DE8;
-  background: rgba(59, 130, 246, 0.08);
-  box-shadow: 0 0 0 1px #2E7DE8;
+  border-color: #6FD3F2;
+  background: rgba(111, 211, 242, 0.08);
+  box-shadow: 0 0 0 1px #6FD3F2, 0 8px 22px rgba(111, 211, 242, 0.1);
 }
 
 .programCard input {
-  display: none;
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .radioCircle {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.3);
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color 0.25s ease;
+  transition: border-color 0.22s ease;
 }
 
 .programCard.selected .radioCircle {
-  border-color: #2E7DE8;
+  border-color: #6FD3F2;
 }
 
 .radioDot {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background: #2E7DE8;
+  background: #6FD3F2;
   transform: scale(0);
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -270,106 +336,132 @@
 }
 
 .programLabel {
-  font-family: 'Manrope', system-ui, sans-serif;
-  font-size: 0.85rem;
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  font-weight: 500;
   color: #ffffff;
   line-height: 1.3;
 }
 
-/* ─── Payment pills ─────────────────────────────────────────────── */
+/* ─── Payment pills ───────────────────────────────────────────────── */
 
 .paymentRow {
   display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-bottom: 1.25rem;
 }
 
 .paymentPill {
-  padding: 0.625rem 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex: 1 1 auto;
+  min-width: 140px;
+  padding: 0.85rem 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
   cursor: pointer;
-  font-family: 'Manrope', system-ui, sans-serif;
-  font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.7);
-  transition: all 0.25s ease;
+  background: rgba(255, 255, 255, 0.025);
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  transition: all 0.22s ease;
+}
+
+.paymentPill:hover {
+  border-color: rgba(111, 211, 242, 0.45);
+  color: #ffffff;
 }
 
 .paymentPill.selected {
-  border-color: #2E7DE8;
-  color: #2E7DE8;
-  background: rgba(59, 130, 246, 0.08);
+  border-color: #6FD3F2;
+  color: #6FD3F2;
+  background: rgba(111, 211, 242, 0.1);
+  box-shadow: 0 0 0 1px #6FD3F2;
 }
 
 .secureNote {
-  font-family: 'Manrope', system-ui, sans-serif;
-  font-size: 0.8rem;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
   color: var(--color-muted);
   margin-bottom: 1.5rem;
 }
 
-/* ─── Fee row ───────────────────────────────────────────────────── */
+/* ─── Fee row ─────────────────────────────────────────────────────── */
 
 .feeRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem;
-  background: rgba(59, 130, 246, 0.05);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 0.75rem;
+  gap: 1rem;
+  padding: 1.15rem 1.35rem;
+  background: linear-gradient(135deg, rgba(111, 211, 242, 0.08), rgba(46, 125, 232, 0.05));
+  border: 1px solid rgba(111, 211, 242, 0.22);
+  border-radius: 0.9rem;
   margin-bottom: 1.5rem;
 }
 
 .feeLabel {
-  font-family: 'Manrope', system-ui, sans-serif;
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.8);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
 }
 
 .feeAmount {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 1.25rem;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
   font-weight: 700;
-  color: var(--color-gold);
+  color: var(--color-gold-soft, #ffe4a3);
+  letter-spacing: 0.01em;
 }
 
-/* ─── Submit button ─────────────────────────────────────────────── */
+/* ─── Submit button ───────────────────────────────────────────────── */
 
 .submitBtn {
   width: 100%;
-  padding: 1rem;
+  padding: 1.15rem 1rem;
   background: linear-gradient(135deg, #2E7DE8, #2BC8F5);
   color: #ffffff;
   border: none;
-  border-radius: 0.75rem;
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 1.1rem;
+  border-radius: 0.9rem;
+  font-family: var(--font-display);
+  font-size: 1.12rem;
   font-weight: 700;
+  letter-spacing: 0.01em;
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: opacity 0.2s ease;
-  will-change: transform, opacity;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  min-height: 56px;
+  gap: 0.55rem;
+  min-height: 60px;
+  box-shadow: 0 16px 40px rgba(46, 125, 232, 0.28);
+}
+
+.submitBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 20px 44px rgba(46, 125, 232, 0.36);
+}
+
+.submitBtn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .submitBtn:disabled {
   cursor: not-allowed;
-  opacity: 0.8;
+  opacity: 0.82;
 }
 
 .submitBtn.success {
   background: #10B981;
+  box-shadow: 0 16px 40px rgba(16, 185, 129, 0.28);
 }
 
 .spinner {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border: 2px solid rgba(255, 255, 255, 0.4);
   border-top-color: #ffffff;
   border-radius: 50%;
@@ -383,18 +475,145 @@
 }
 
 .encryptedNote {
-  font-family: 'Manrope', system-ui, sans-serif;
-  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
   color: var(--color-muted);
   text-align: center;
-  margin-top: 0.75rem;
+  margin-top: 0.85rem;
 }
 
-/* ─── Confetti canvas ───────────────────────────────────────────── */
+/* ─── Confetti canvas ─────────────────────────────────────────────── */
 
 .confettiCanvas {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 9997;
+}
+
+/* ─── Tablet (≤ 900px) ────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .formCard {
+    padding: 2rem 1.75rem;
+  }
+
+  .stepConnector {
+    max-width: 48px;
+  }
+}
+
+/* ─── Mobile (≤ 640px) ────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .formCard {
+    padding: 1.5rem 1.1rem;
+    border-radius: 1rem;
+  }
+
+  .heading {
+    margin-bottom: 1.5rem;
+  }
+
+  .progressSteps {
+    margin-bottom: 2rem;
+  }
+
+  .step {
+    font-size: 0.65rem;
+  }
+
+  .stepConnector {
+    max-width: 28px;
+    margin-bottom: 16px;
+  }
+
+  /* Stack all paired fields on phones */
+  .fieldRow {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .sectionGroup {
+    margin-bottom: 1.75rem;
+    padding-bottom: 1.75rem;
+  }
+
+  .sectionHeading {
+    margin-bottom: 1.15rem;
+  }
+
+  /* Bigger tap targets on mobile */
+  .input,
+  .select {
+    min-height: 62px;
+    font-size: 1rem; /* prevents iOS Safari from auto-zooming on focus */
+    padding: 1.55rem 1rem 0.55rem;
+  }
+
+  .floatingLabel {
+    font-size: 1rem;
+  }
+
+  .input:focus + .floatingLabel,
+  .input:not(:placeholder-shown) + .floatingLabel,
+  .inputWrapper:has(select) .floatingLabel {
+    font-size: 0.72rem;
+  }
+
+  .programGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .paymentRow {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .paymentPill {
+    width: 100%;
+  }
+
+  .feeRow {
+    padding: 1rem 1.15rem;
+  }
+
+  .feeAmount {
+    font-size: 1.3rem;
+  }
+
+  .submitBtn {
+    font-size: 1.05rem;
+    min-height: 58px;
+  }
+}
+
+/* ─── Small phones (≤ 380px) ──────────────────────────────────────── */
+
+@media (max-width: 380px) {
+  .formCard {
+    padding: 1.25rem 0.85rem;
+  }
+
+  .step span {
+    display: none; /* show only the dot indicators */
+  }
+}
+
+/* ─── Reduced motion ──────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .input,
+  .select,
+  .floatingLabel,
+  .programCard,
+  .paymentPill,
+  .submitBtn,
+  .radioDot,
+  .stepDot,
+  .stepConnector {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
+  }
 }

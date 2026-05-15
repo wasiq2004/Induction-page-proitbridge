@@ -7,6 +7,10 @@ import LandingPage from '@pages/LandingPage';
 import CongratulationsPage from '@pages/CongratulationsPage';
 import EnrollmentPage from '@pages/EnrollmentPage';
 import EnrollmentConfirmationPage from '@pages/EnrollmentConfirmationPage';
+import TermsPage from '@pages/TermsPage';
+import PrivacyPage from '@pages/PrivacyPage';
+import RefundPage from '@pages/RefundPage';
+import ContactPage from '@pages/ContactPage';
 import { initMetaPixel } from '@lib/metaPixel';
 
 function App() {
@@ -35,6 +39,10 @@ function App() {
           <Route path="/congratulations" element={<CongratulationsPage />} />
           <Route path="/enrollment" element={<EnrollmentPage />} />
           <Route path="/enrollment-confirmation" element={<EnrollmentConfirmationPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/refund" element={<RefundPage />} />
+          <Route path="/contact" element={<ContactPage />} />
         </Routes>
       </div>
     </>

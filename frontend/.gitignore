@@ -6,3 +6,6 @@ dist-ssr
 .env
 .env.local
 .DS_Store
+
+# Large media — not tracked in git
+public/assets/congrats-page-video.mp4
