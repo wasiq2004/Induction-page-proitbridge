@@ -6,15 +6,17 @@
  * SHEETS (auto-created if missing)
  * ============================================================================
  *
- * "Inductions" — one row per user, drives payment + login.
- *   A  Timestamp           ← written by script on register
- *   B  Full Name           ← written by script on register
- *   C  Mobile Number       ← written by script (10-digit string)
- *   D  Status              ← PENDING → SUCCESS
- *   E  Payment ID          ← written by script on updatePayment
- *   F  Assigned to         ← manual / team-managed — script never writes
- *   G  Call Summary        ← manual / team-managed — script never writes
- *   H  Induction status    ← manual / team-managed — script never writes
+ * "₹89 Database" — one row per user, drives payment + login.
+ *   A  User ID             ← auto-generated on register (PIB89-YYYYMMDD-NNNN)
+ *   B  Timestamp           ← written by script on register
+ *   C  Full Name           ← written by script on register
+ *   D  Email               ← written by script on register
+ *   E  Mobile Number       ← written by script (10-digit string)
+ *   F  Status              ← PENDING → SUCCESS
+ *   G  Payment ID          ← written by script on updatePayment
+ *   H  Assigned to         ← manual / team-managed — script never writes
+ *   I  Call Summary        ← manual / team-managed — script never writes
+ *   J  Induction status    ← manual / team-managed — script never writes
  *
  * "WatchProgress" — one row per (mobile, videoId), updated as users watch.
  *   A  mobile
@@ -34,16 +36,16 @@
  * ENDPOINTS — all HTTP GET, dispatched by `?action=`
  * ============================================================================
  *
- *   ?action=register&fullName=...&mobile=...
- *     Appends a new PENDING row.
+ *   ?action=register&fullName=...&email=...&mobile=...
+ *     Appends a new PENDING row with an auto-generated User ID.
  *
- *   ?action=updatePayment&fullName=...&mobile=...&paymentId=...
+ *   ?action=updatePayment&fullName=...&email=...&mobile=...&paymentId=...
  *     Flips the most recent PENDING row to SUCCESS + writes Payment ID.
  *     If no PENDING row exists, appends a SUCCESS row defensively.
  *
  *   ?action=checkAccess&mobile=...
  *     Looks up the most recent row for this mobile.
- *     Returns { hasAccess, status, userName, paymentId }.
+ *     Returns { hasAccess, status, userName, userId, email, paymentId }.
  *       status ∈ "SUCCESS" | "PENDING" | "NONE"
  *
  *   ?action=updateWatch&mobile=...&fullName=...&videoId=...
@@ -66,21 +68,38 @@
 // ---------- Config ----------------------------------------------------------
 
 const SHEETS = {
-  INDUCTIONS: 'Inductions',
+  INDUCTIONS: '₹89 Database',
   WATCH: 'WatchProgress',
 };
 
-// 1-based column indices for the Inductions tab.
+// 1-based column indices for the ₹89 Database tab.
 const COL = {
-  TIMESTAMP: 1,
-  FULL_NAME: 2,
-  MOBILE: 3,
-  STATUS: 4,
-  PAYMENT_ID: 5,
-  ASSIGNED_TO: 6,        // manual — never written
-  CALL_SUMMARY: 7,       // manual — never written
-  INDUCTION_STATUS: 8,   // manual — never written
+  USER_ID: 1,
+  TIMESTAMP: 2,
+  FULL_NAME: 3,
+  EMAIL: 4,
+  MOBILE: 5,
+  STATUS: 6,
+  PAYMENT_ID: 7,
+  ASSIGNED_TO: 8,        // manual — never written
+  CALL_SUMMARY: 9,       // manual — never written
+  INDUCTION_STATUS: 10,  // manual — never written
 };
+
+const INDUCTION_HEADERS = [
+  'User ID',
+  'Timestamp',
+  'Full Name',
+  'Email',
+  'Mobile Number',
+  'Status',
+  'Payment ID',
+  'Assigned to',
+  'Call Summary',
+  'Induction status',
+];
+
+const USER_ID_PREFIX = 'PIB89';
 
 const WATCH_HEADERS = [
   'mobile',
@@ -128,22 +147,34 @@ function doPost(e) {
 function handleRegister(p) {
   const sheet = inductionsSheet();
   const fullName = sanitizeName(p.fullName);
+  const email = sanitizeEmail(p.email);
   const mobile = normalizeMobile(p.mobile);
-  if (!fullName || !isValidMobile(mobile)) {
+  if (!fullName || !isValidEmail(email) || !isValidMobile(mobile)) {
     return textResponse('INVALID');
   }
 
-  sheet.appendRow([
-    new Date(),
-    fullName,
-    mobile,
-    STATUS_PENDING,
-    '',
-    '', // Assigned to     — never auto-fill
-    '', // Call Summary    — never auto-fill
-    '', // Induction status — never auto-fill
-  ]);
-  return textResponse('OK');
+  // Serialize User ID generation so two simultaneous registers can't collide
+  // on the same sequential suffix.
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const userId = nextUserId(sheet);
+    sheet.appendRow([
+      userId,
+      new Date(),
+      fullName,
+      email,
+      mobile,
+      STATUS_PENDING,
+      '',
+      '', // Assigned to     — never auto-fill
+      '', // Call Summary    — never auto-fill
+      '', // Induction status — never auto-fill
+    ]);
+    return textResponse('OK ' + userId);
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function handleUpdatePayment(p) {
@@ -156,11 +187,13 @@ function handleUpdatePayment(p) {
 
   const lastRow = sheet.getLastRow();
   if (lastRow >= 2) {
-    const range = sheet.getRange(2, COL.FULL_NAME, lastRow - 1, COL.STATUS - COL.FULL_NAME + 1);
-    const values = range.getValues(); // [Full Name, Mobile, Status]
+    // Read Full Name through Status in one call.
+    const width = COL.STATUS - COL.FULL_NAME + 1;
+    const range = sheet.getRange(2, COL.FULL_NAME, lastRow - 1, width);
+    const values = range.getValues(); // [Full Name, Email, Mobile, Status]
     for (let i = values.length - 1; i >= 0; i--) {
-      const rowMobile = normalizeMobile(values[i][1]);
-      const rowStatus = String(values[i][2]).trim().toUpperCase();
+      const rowMobile = normalizeMobile(values[i][2]);
+      const rowStatus = String(values[i][3]).trim().toUpperCase();
       if (rowMobile === mobile && rowStatus === STATUS_PENDING) {
         const sheetRow = i + 2;
         sheet.getRange(sheetRow, COL.STATUS).setValue(STATUS_SUCCESS);
@@ -173,7 +206,24 @@ function handleUpdatePayment(p) {
   // Defensive fallback: no PENDING row exists — append SUCCESS directly so
   // a successful payer is never locked out.
   const fullName = sanitizeName(p.fullName) || 'Unknown';
-  sheet.appendRow([new Date(), fullName, mobile, STATUS_SUCCESS, paymentId, '', '', '']);
+  const email = sanitizeEmail(p.email);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const userId = nextUserId(sheet);
+    sheet.appendRow([
+      userId,
+      new Date(),
+      fullName,
+      email,
+      mobile,
+      STATUS_SUCCESS,
+      paymentId,
+      '', '', '',
+    ]);
+  } finally {
+    lock.releaseLock();
+  }
   return textResponse('APPENDED');
 }
 
@@ -187,19 +237,24 @@ function handleCheckAccess(p) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return jsonResponse({ hasAccess: false, status: 'NONE' });
 
-  const range = sheet.getRange(2, COL.FULL_NAME, lastRow - 1, COL.PAYMENT_ID - COL.FULL_NAME + 1);
-  const values = range.getValues(); // [Full Name, Mobile, Status, Payment ID]
+  // Read User ID through Payment ID in one block.
+  const width = COL.PAYMENT_ID - COL.USER_ID + 1;
+  const range = sheet.getRange(2, COL.USER_ID, lastRow - 1, width);
+  const values = range.getValues();
+  // values[i] = [User ID, Timestamp, Full Name, Email, Mobile, Status, Payment ID]
 
   // Most recent row for this mobile wins.
   for (let i = values.length - 1; i >= 0; i--) {
-    const rowMobile = normalizeMobile(values[i][1]);
+    const rowMobile = normalizeMobile(values[i][4]);
     if (rowMobile !== mobile) continue;
-    const rowStatus = String(values[i][2]).trim().toUpperCase();
+    const rowStatus = String(values[i][5]).trim().toUpperCase();
     return jsonResponse({
       hasAccess: rowStatus === STATUS_SUCCESS,
       status: rowStatus || 'NONE',
-      userName: String(values[i][0]).trim(),
-      paymentId: String(values[i][3]).trim(),
+      userId: String(values[i][0]).trim(),
+      userName: String(values[i][2]).trim(),
+      email: String(values[i][3]).trim(),
+      paymentId: String(values[i][6]).trim(),
     });
   }
   return jsonResponse({ hasAccess: false, status: 'NONE' });
@@ -326,10 +381,30 @@ function handleUpdateWatch(p) {
 
 function inductionsSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  // The Inductions tab is created manually with its existing headers; keep
-  // backward compat by returning the first/active sheet if "Inductions"
-  // isn't there yet.
-  return ss.getSheetByName(SHEETS.INDUCTIONS) || ss.getActiveSheet();
+  let sheet = ss.getSheetByName(SHEETS.INDUCTIONS);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEETS.INDUCTIONS);
+    sheet.appendRow(INDUCTION_HEADERS);
+    sheet.getRange(1, 1, 1, INDUCTION_HEADERS.length).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  } else if (sheet.getLastRow() === 0) {
+    sheet.appendRow(INDUCTION_HEADERS);
+    sheet.getRange(1, 1, 1, INDUCTION_HEADERS.length).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+// Sequential, human-readable User ID: PIB89-YYYYMMDD-NNNN. The NNNN is the
+// 1-based position of the new row (counting from the first data row), so IDs
+// are stable and never collide as long as nextUserId is invoked under the
+// script lock.
+function nextUserId(sheet) {
+  const seq = Math.max(0, sheet.getLastRow() - 1) + 1; // next data row index
+  const tz = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone() || 'Asia/Kolkata';
+  const datePart = Utilities.formatDate(new Date(), tz, 'yyyyMMdd');
+  const seqPart = ('0000' + seq).slice(-4);
+  return USER_ID_PREFIX + '-' + datePart + '-' + seqPart;
 }
 
 function watchSheet() {
@@ -372,6 +447,14 @@ function isValidMobile(mobile) {
 
 function sanitizeName(name) {
   return String(name || '').trim().slice(0, 80);
+}
+
+function sanitizeEmail(email) {
+  return String(email || '').trim().toLowerCase().slice(0, 120);
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function toNum(v) {

@@ -17,11 +17,13 @@ type AuthStep = 'consent' | 'selection' | 'details' | 'login' | 'payment';
 
 const NAME_REGEX = /^.{2,}$/;
 const MOBILE_REGEX = /^[6-9]\d{9}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function QuickAuthModal({ isOpen, onClose }: QuickAuthModalProps) {
   const navigate = useNavigate();
   const [step, setStep] = useState<AuthStep>('consent');
   const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +34,7 @@ function QuickAuthModal({ isOpen, onClose }: QuickAuthModalProps) {
     if (isOpen) {
       setStep('consent');
       setFullName('');
+      setEmail('');
       setMobile('');
       setError(null);
       setLoading(false);
@@ -66,6 +69,7 @@ function QuickAuthModal({ isOpen, onClose }: QuickAuthModalProps) {
 
   const validateDetails = (): string | null => {
     if (!NAME_REGEX.test(fullName.trim())) return 'Please enter your full name';
+    if (!EMAIL_REGEX.test(email.trim())) return 'Please enter a valid email address';
     if (!MOBILE_REGEX.test(mobile)) return 'Enter a valid 10-digit Indian mobile number';
     return null;
   };
@@ -141,7 +145,7 @@ function QuickAuthModal({ isOpen, onClose }: QuickAuthModalProps) {
     setError(null);
     setLoading(true);
     try {
-      const paymentId = await startInductionPayment(mobile, fullName.trim());
+      const paymentId = await startInductionPayment(mobile, fullName.trim(), email.trim());
       onClose();
       setTimeout(
         () =>
@@ -226,11 +230,13 @@ function QuickAuthModal({ isOpen, onClose }: QuickAuthModalProps) {
         {step === 'details' && (
           <DetailsStep
             fullName={fullName}
+            email={email}
             mobile={mobile}
             error={error}
             loading={loading}
             onBack={() => setStep('selection')}
             onChangeName={setFullName}
+            onChangeEmail={setEmail}
             onChangeMobile={setMobile}
             onContinue={goToPayment}
           />
@@ -445,17 +451,20 @@ function SelectionStep({ onPay, onLogin }: { onPay: () => void; onLogin: () => v
 
 function DetailsStep(props: {
   fullName: string;
+  email: string;
   mobile: string;
   error: string | null;
   loading: boolean;
   onBack: () => void;
   onChangeName: (v: string) => void;
+  onChangeEmail: (v: string) => void;
   onChangeMobile: (v: string) => void;
   onContinue: () => void;
 }) {
   const enabled =
     !props.loading &&
     props.fullName.trim().length >= 2 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(props.email.trim()) &&
     /^[6-9]\d{9}$/.test(props.mobile);
   return (
     <div>
@@ -470,6 +479,18 @@ function DetailsStep(props: {
           placeholder="e.g. Priya Sharma"
           value={props.fullName}
           onChange={(e) => props.onChangeName(e.target.value)}
+          style={inputStyle}
+        />
+      </div>
+
+      <div style={{ marginBottom: '1.25rem' }}>
+        <label style={labelStyle}>Email *</label>
+        <input
+          type="email"
+          autoComplete="email"
+          placeholder="you@example.com"
+          value={props.email}
+          onChange={(e) => props.onChangeEmail(e.target.value)}
           style={inputStyle}
         />
       </div>

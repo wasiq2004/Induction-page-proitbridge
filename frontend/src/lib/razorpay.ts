@@ -131,8 +131,9 @@ const openCheckout = async (opts: CheckoutOptions): Promise<CheckoutSuccess> => 
 export const startInductionPayment = async (
   mobile: string,
   name: string,
+  email: string,
 ): Promise<string> => {
-  await registerPendingUser(name, mobile);
+  await registerPendingUser(name, email, mobile);
   trackEvent('InitiateCheckout', { value: 89, currency: env.razorpay.currency });
   setPaymentPending(mobile, name);
 
@@ -140,11 +141,11 @@ export const startInductionPayment = async (
     const result = await openCheckout({
       amount: env.razorpay.inductionAmount,
       description: 'ProITBridge Induction Session',
-      prefill: { name, contact: mobile },
+      prefill: { name, email, contact: mobile },
     });
 
     clearPaymentPending();
-    await updatePaymentSuccess(name, mobile, result.razorpay_payment_id);
+    await updatePaymentSuccess(name, email, mobile, result.razorpay_payment_id);
     saveAuthSession(mobile, name);
     trackEvent('Purchase', { value: 89, currency: env.razorpay.currency });
     trackCustom('InductionPaymentSuccess', {

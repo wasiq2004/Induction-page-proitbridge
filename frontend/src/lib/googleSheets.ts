@@ -42,6 +42,7 @@ const buildUrl = (params: Record<string, string>): string => {
 /** Fire-and-forget: write a new PENDING row before payment opens. */
 export const registerPendingUser = async (
   fullName: string,
+  email: string,
   mobile: string,
 ): Promise<void> => {
   try {
@@ -49,6 +50,7 @@ export const registerPendingUser = async (
       buildUrl({
         action: 'register',
         fullName,
+        email,
         mobile,
         status: 'PENDING',
         paymentId: '',
@@ -63,6 +65,7 @@ export const registerPendingUser = async (
 /** Fire-and-forget: flip the row to SUCCESS after Razorpay confirms payment. */
 export const updatePaymentSuccess = async (
   fullName: string,
+  email: string,
   mobile: string,
   paymentId: string,
 ): Promise<void> => {
@@ -71,6 +74,7 @@ export const updatePaymentSuccess = async (
       buildUrl({
         action: 'updatePayment',
         fullName,
+        email,
         mobile,
         status: 'SUCCESS',
         paymentId,
