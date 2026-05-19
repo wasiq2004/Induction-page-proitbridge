@@ -7,16 +7,16 @@
  * ============================================================================
  *
  * "₹89 Database" — one row per user, drives payment + login.
- *   A  User ID             ← auto-generated on register (PIB89-YYYYMMDD-NNNN)
- *   B  Timestamp           ← written by script on register
- *   C  Full Name           ← written by script on register
- *   D  Email               ← written by script on register
- *   E  Mobile Number       ← written by script (10-digit string)
+ *   A  Timestamp           ← written by script on register
+ *   B  Full Name           ← written by script on register
+ *   C  Mobile Number       ← written by script (10-digit string)
+ *   D  Email Address       ← written by script on register
+ *   E  User ID             ← auto-generated on register (PIB89-YYYYMMDD-NNNN)
  *   F  Status              ← PENDING → SUCCESS
  *   G  Payment ID          ← written by script on updatePayment
  *   H  Assigned to         ← manual / team-managed — script never writes
  *   I  Call Summary        ← manual / team-managed — script never writes
- *   J  Induction status    ← manual / team-managed — script never writes
+ *   J  Lead Type           ← manual / team-managed — script never writes
  *
  * "WatchProgress" — one row per (mobile, videoId), updated as users watch.
  *   A  mobile
@@ -73,33 +73,41 @@ const SHEETS = {
 };
 
 // 1-based column indices for the ₹89 Database tab.
+// Column order matches the existing sheet layout.
 const COL = {
-  USER_ID: 1,
-  TIMESTAMP: 2,
-  FULL_NAME: 3,
+  TIMESTAMP: 1,
+  FULL_NAME: 2,
+  MOBILE: 3,
   EMAIL: 4,
-  MOBILE: 5,
+  USER_ID: 5,
   STATUS: 6,
   PAYMENT_ID: 7,
   ASSIGNED_TO: 8,        // manual — never written
   CALL_SUMMARY: 9,       // manual — never written
-  INDUCTION_STATUS: 10,  // manual — never written
+  LEAD_TYPE: 10,         // manual — never written
 };
 
 const INDUCTION_HEADERS = [
-  'User ID',
   'Timestamp',
   'Full Name',
-  'Email',
   'Mobile Number',
+  'Email Address',
+  'User ID',
   'Status',
   'Payment ID',
   'Assigned to',
   'Call Summary',
-  'Induction status',
+  'Lead Type',
 ];
 
 const USER_ID_PREFIX = 'PIB89';
+const IST_TIMEZONE = 'Asia/Kolkata';
+
+// Pre-formatted IST timestamp string so the cell renders correctly regardless
+// of the spreadsheet's own timezone setting.
+function nowIst() {
+  return Utilities.formatDate(new Date(), IST_TIMEZONE, 'dd/MM/yyyy HH:mm:ss');
+}
 
 const WATCH_HEADERS = [
   'mobile',
@@ -160,16 +168,16 @@ function handleRegister(p) {
   try {
     const userId = nextUserId(sheet);
     sheet.appendRow([
-      userId,
-      new Date(),
+      nowIst(),
       fullName,
-      email,
       mobile,
+      email,
+      userId,
       STATUS_PENDING,
       '',
-      '', // Assigned to     — never auto-fill
-      '', // Call Summary    — never auto-fill
-      '', // Induction status — never auto-fill
+      '', // Assigned to  — never auto-fill
+      '', // Call Summary — never auto-fill
+      '', // Lead Type    — never auto-fill
     ]);
     return textResponse('OK ' + userId);
   } finally {
@@ -190,10 +198,10 @@ function handleUpdatePayment(p) {
     // Read Full Name through Status in one call.
     const width = COL.STATUS - COL.FULL_NAME + 1;
     const range = sheet.getRange(2, COL.FULL_NAME, lastRow - 1, width);
-    const values = range.getValues(); // [Full Name, Email, Mobile, Status]
+    const values = range.getValues(); // [Full Name, Mobile, Email, User ID, Status]
     for (let i = values.length - 1; i >= 0; i--) {
-      const rowMobile = normalizeMobile(values[i][2]);
-      const rowStatus = String(values[i][3]).trim().toUpperCase();
+      const rowMobile = normalizeMobile(values[i][1]);
+      const rowStatus = String(values[i][4]).trim().toUpperCase();
       if (rowMobile === mobile && rowStatus === STATUS_PENDING) {
         const sheetRow = i + 2;
         sheet.getRange(sheetRow, COL.STATUS).setValue(STATUS_SUCCESS);
@@ -212,11 +220,11 @@ function handleUpdatePayment(p) {
   try {
     const userId = nextUserId(sheet);
     sheet.appendRow([
-      userId,
-      new Date(),
+      nowIst(),
       fullName,
-      email,
       mobile,
+      email,
+      userId,
       STATUS_SUCCESS,
       paymentId,
       '', '', '',
@@ -237,22 +245,22 @@ function handleCheckAccess(p) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return jsonResponse({ hasAccess: false, status: 'NONE' });
 
-  // Read User ID through Payment ID in one block.
-  const width = COL.PAYMENT_ID - COL.USER_ID + 1;
-  const range = sheet.getRange(2, COL.USER_ID, lastRow - 1, width);
+  // Read Timestamp through Payment ID in one block.
+  const width = COL.PAYMENT_ID - COL.TIMESTAMP + 1;
+  const range = sheet.getRange(2, COL.TIMESTAMP, lastRow - 1, width);
   const values = range.getValues();
-  // values[i] = [User ID, Timestamp, Full Name, Email, Mobile, Status, Payment ID]
+  // values[i] = [Timestamp, Full Name, Mobile, Email, User ID, Status, Payment ID]
 
   // Most recent row for this mobile wins.
   for (let i = values.length - 1; i >= 0; i--) {
-    const rowMobile = normalizeMobile(values[i][4]);
+    const rowMobile = normalizeMobile(values[i][2]);
     if (rowMobile !== mobile) continue;
     const rowStatus = String(values[i][5]).trim().toUpperCase();
     return jsonResponse({
       hasAccess: rowStatus === STATUS_SUCCESS,
       status: rowStatus || 'NONE',
-      userId: String(values[i][0]).trim(),
-      userName: String(values[i][2]).trim(),
+      userId: String(values[i][4]).trim(),
+      userName: String(values[i][1]).trim(),
       email: String(values[i][3]).trim(),
       paymentId: String(values[i][6]).trim(),
     });
@@ -401,8 +409,7 @@ function inductionsSheet() {
 // script lock.
 function nextUserId(sheet) {
   const seq = Math.max(0, sheet.getLastRow() - 1) + 1; // next data row index
-  const tz = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone() || 'Asia/Kolkata';
-  const datePart = Utilities.formatDate(new Date(), tz, 'yyyyMMdd');
+  const datePart = Utilities.formatDate(new Date(), IST_TIMEZONE, 'yyyyMMdd');
   const seqPart = ('0000' + seq).slice(-4);
   return USER_ID_PREFIX + '-' + datePart + '-' + seqPart;
 }
