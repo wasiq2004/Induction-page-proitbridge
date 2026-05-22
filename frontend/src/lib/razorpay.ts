@@ -13,8 +13,7 @@
 
 import { env } from './env';
 import {
-  registerPendingUser,
-  updatePaymentSuccess,
+  registerSuccessfulInduction,
   saveAuthSession,
 } from './googleSheets';
 import {
@@ -119,11 +118,14 @@ const openCheckout = async (opts: CheckoutOptions): Promise<CheckoutSuccess> => 
 
 /**
  * Full ₹89 induction payment flow:
- *   1. Write PENDING row to GAS
- *   2. fbq('InitiateCheckout')
- *   3. Mark pending in sessionStorage
- *   4. Open Razorpay
- *   5. On success: GAS updatePayment → save session → fbq Purchase
+ *   1. fbq('InitiateCheckout')
+ *   2. Mark pending in sessionStorage
+ *   3. Open Razorpay
+ *   4. On success ONLY: write SUCCESS row (with paymentId) to GAS → save
+ *      session → fbq Purchase
+ *
+ * The sheet is never written to before Razorpay confirms — failed or
+ * cancelled payments leave no trace.
  *
  * Returns the Razorpay payment ID. Throws CheckoutDismissedError or
  * CheckoutFailedError on failure.
@@ -133,7 +135,6 @@ export const startInductionPayment = async (
   name: string,
   email: string,
 ): Promise<string> => {
-  await registerPendingUser(name, email, mobile);
   trackEvent('InitiateCheckout', { value: 89, currency: env.razorpay.currency });
   setPaymentPending(mobile, name);
 
@@ -145,7 +146,7 @@ export const startInductionPayment = async (
     });
 
     clearPaymentPending();
-    await updatePaymentSuccess(name, email, mobile, result.razorpay_payment_id);
+    await registerSuccessfulInduction(name, email, mobile, result.razorpay_payment_id);
     saveAuthSession(mobile, name);
     trackEvent('Purchase', { value: 89, currency: env.razorpay.currency });
     trackCustom('InductionPaymentSuccess', {

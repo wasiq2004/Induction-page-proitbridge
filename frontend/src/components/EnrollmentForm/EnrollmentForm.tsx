@@ -2,10 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { useScrollReveal } from '@hooks/useScrollReveal';
-import {
-  registerPendingEnrollment,
-  finalizeEnrollmentPayment,
-} from '@services/enrollmentService';
+import { recordSuccessfulEnrollment } from '@services/enrollmentService';
 import { indianStates } from '@constants/indianStates';
 import { ProgramType, PaymentMethod } from '@t/index';
 import type { EnrollmentFormData, CourseType } from '@t/index';
@@ -222,22 +219,18 @@ function EnrollmentForm() {
     }
 
     setSubmitState('loading');
-    let enrollmentId: string | null = null;
     try {
-      // Phase 1 — write PENDING row, get enrollmentId back.
-      const pending = await registerPendingEnrollment(formData);
-      enrollmentId = pending.enrollmentId;
-
-      // Open Razorpay. Throws CheckoutDismissedError on user cancel,
-      // CheckoutFailedError on gateway failure.
+      // Open Razorpay FIRST. Nothing is written to the sheet unless this
+      // succeeds with a real paymentId. Throws CheckoutDismissedError on
+      // user cancel, CheckoutFailedError on gateway failure.
       const paymentId = await openEnrollmentCheckout({
         name: formData.fullName,
         email: formData.email,
         contact: formData.mobile,
       });
 
-      // Phase 2 — flip the row to SUCCESS with the payment id.
-      await finalizeEnrollmentPayment(enrollmentId, paymentId, 'SUCCESS');
+      // Payment confirmed — now persist the SUCCESS row + paymentId.
+      const { enrollmentId } = await recordSuccessfulEnrollment(formData, paymentId);
 
       trackEvent('Purchase', { value: 1000, currency: env.razorpay.currency });
       trackCustom('EnrollmentPaymentSuccess', {
@@ -260,11 +253,7 @@ function EnrollmentForm() {
       );
     } catch (err) {
       setSubmitState('idle');
-      // If we created a PENDING row, mark the outcome so the sheet matches reality.
-      if (enrollmentId) {
-        const status = err instanceof CheckoutDismissedError ? 'CANCELLED' : 'FAILED';
-        finalizeEnrollmentPayment(enrollmentId, '', status);
-      }
+      // No sheet write to undo — nothing was persisted before payment.
       if (err instanceof CheckoutDismissedError) {
         setSubmitError('Payment cancelled. You can try again when ready.');
       } else {

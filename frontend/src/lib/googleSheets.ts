@@ -39,31 +39,12 @@ const buildUrl = (params: Record<string, string>): string => {
   return `${base}?${qs}`;
 };
 
-/** Fire-and-forget: write a new PENDING row before payment opens. */
-export const registerPendingUser = async (
-  fullName: string,
-  email: string,
-  mobile: string,
-): Promise<void> => {
-  try {
-    await fetch(
-      buildUrl({
-        action: 'register',
-        fullName,
-        email,
-        mobile,
-        status: 'PENDING',
-        paymentId: '',
-      }),
-      { method: 'GET', mode: 'no-cors' },
-    );
-  } catch (err) {
-    console.warn('[googleSheets] registerPendingUser failed', err);
-  }
-};
-
-/** Fire-and-forget: flip the row to SUCCESS after Razorpay confirms payment. */
-export const updatePaymentSuccess = async (
+/**
+ * Fire-and-forget: write the induction user row ONLY after Razorpay has
+ * confirmed payment and produced a paymentId. No PENDING rows are ever
+ * created — the sheet reflects successful payments only.
+ */
+export const registerSuccessfulInduction = async (
   fullName: string,
   email: string,
   mobile: string,
@@ -72,7 +53,7 @@ export const updatePaymentSuccess = async (
   try {
     await fetch(
       buildUrl({
-        action: 'updatePayment',
+        action: 'register',
         fullName,
         email,
         mobile,
@@ -82,7 +63,7 @@ export const updatePaymentSuccess = async (
       { method: 'GET', mode: 'no-cors' },
     );
   } catch (err) {
-    console.warn('[googleSheets] updatePaymentSuccess failed', err);
+    console.warn('[googleSheets] registerSuccessfulInduction failed', err);
   }
 };
 
